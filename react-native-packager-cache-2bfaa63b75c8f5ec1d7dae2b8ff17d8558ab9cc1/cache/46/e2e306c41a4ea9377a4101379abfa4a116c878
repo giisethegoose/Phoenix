@@ -1,0 +1,16 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+var NamedNode = function () {
+  function NamedNode(name, node) {
+    this.name = name;
+    this.node = node;
+  }
+
+  NamedNode.Wrap = function (name, node) {
+    return new NamedNode(name, node);
+  };
+  return NamedNode;
+}();
+exports.NamedNode = NamedNode;

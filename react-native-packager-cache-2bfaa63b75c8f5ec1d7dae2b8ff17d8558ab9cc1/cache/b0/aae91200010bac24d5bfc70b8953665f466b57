@@ -1,0 +1,33 @@
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+exports.default = function (navigation) {
+  return babelHelpers.extends({}, navigation, {
+    goBack: function goBack(key) {
+      var actualizedKey = key;
+      if (key === undefined && navigation.state.key) {
+        (0, _invariant2.default)(typeof navigation.state.key === 'string', 'key should be a string');
+        actualizedKey = navigation.state.key;
+      }
+      return navigation.dispatch(_NavigationActions2.default.back({ key: actualizedKey }));
+    },
+    navigate: function navigate(routeName, params, action) {
+      return navigation.dispatch(_NavigationActions2.default.navigate({ routeName: routeName, params: params, action: action }));
+    },
+
+    setParams: function setParams(params) {
+      (0, _invariant2.default)(navigation.state.key && typeof navigation.state.key === 'string', 'setParams cannot be called by root navigator');
+      var key = navigation.state.key;
+      return navigation.dispatch(_NavigationActions2.default.setParams({ params: params, key: key }));
+    }
+  });
+};
+
+var _NavigationActions = require('./NavigationActions');
+
+var _NavigationActions2 = babelHelpers.interopRequireDefault(_NavigationActions);
+
+var _invariant = require('./utils/invariant');
+
+var _invariant2 = babelHelpers.interopRequireDefault(_invariant);

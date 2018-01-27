@@ -1,0 +1,45 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var RepoInfo_1 = require("../core/RepoInfo");
+var PersistentConnection_1 = require("../core/PersistentConnection");
+var RepoManager_1 = require("../core/RepoManager");
+var Connection_1 = require("../realtime/Connection");
+exports.DataConnection = PersistentConnection_1.PersistentConnection;
+
+PersistentConnection_1.PersistentConnection.prototype.simpleListen = function (pathString, onComplete) {
+    this.sendRequest('q', { p: pathString }, onComplete);
+};
+
+PersistentConnection_1.PersistentConnection.prototype.echo = function (data, onEcho) {
+    this.sendRequest('echo', { d: data }, onEcho);
+};
+
+exports.RealTimeConnection = Connection_1.Connection;
+
+exports.hijackHash = function (newHash) {
+    var oldPut = PersistentConnection_1.PersistentConnection.prototype.put;
+    PersistentConnection_1.PersistentConnection.prototype.put = function (pathString, data, opt_onComplete, opt_hash) {
+        if (opt_hash !== undefined) {
+            opt_hash = newHash();
+        }
+        oldPut.call(this, pathString, data, opt_onComplete, opt_hash);
+    };
+    return function () {
+        PersistentConnection_1.PersistentConnection.prototype.put = oldPut;
+    };
+};
+
+exports.ConnectionTarget = RepoInfo_1.RepoInfo;
+
+exports.queryIdentifier = function (query) {
+    return query.queryIdentifier();
+};
+
+exports.listens = function (firebaseRef) {
+    return firebaseRef.repo.persistentConnection_.listens_;
+};
+
+exports.forceRestClient = function (forceRestClient) {
+    RepoManager_1.RepoManager.getInstance().forceRestClient(forceRestClient);
+};

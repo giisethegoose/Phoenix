@@ -1,0 +1,16 @@
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var StatefulPromise = function (_Promise) {
+  babelHelpers.inherits(StatefulPromise, _Promise);
+
+  function StatefulPromise() {
+    babelHelpers.classCallCheck(this, StatefulPromise);
+    return babelHelpers.possibleConstructorReturn(this, (StatefulPromise.__proto__ || Object.getPrototypeOf(StatefulPromise)).apply(this, arguments));
+  }
+
+  return StatefulPromise;
+}(Promise);
+
+exports.default = StatefulPromise;

@@ -1,0 +1,1 @@
+["445c8736ee9d589caddc36c34cb1e6d1e0f6ff58","bf35f790657fff1e38a5a4717bfba708a2f96b62",[],[],{"version":3,"sources":["/home/giise/candidtwo/node_modules/react-native-svg/lib/extract/patternReg.js"],"names":[],"mappings":";;;kBAAe,iB","sourcesContent":["export default /^url\\(#(.+?)\\)$/;\n"]}]

@@ -1,0 +1,17 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+function make(resolver) {
+  return new Promise(resolver);
+}
+exports.make = make;
+
+function resolve(value) {
+  return Promise.resolve(value);
+}
+exports.resolve = resolve;
+function reject(error) {
+  return Promise.reject(error);
+}
+exports.reject = reject;

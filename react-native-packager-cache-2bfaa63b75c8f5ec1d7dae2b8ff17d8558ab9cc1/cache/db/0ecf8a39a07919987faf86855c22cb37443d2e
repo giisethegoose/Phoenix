@@ -1,0 +1,520 @@
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react2 = require('react');
+
+var _react3 = _interopRequireDefault(_react2);
+
+var _index = require('./node_modules/react-transform-hmr/lib/index.js');
+
+var _index2 = _interopRequireDefault(_index);
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _class, _temp, _class2, _temp2;
+
+var _reactNative = require('react-native');
+
+var _expo = require('expo');
+
+var _firebase = require('firebase');
+
+var firebase = _interopRequireWildcard(_firebase);
+
+var _reactNavigation = require('react-navigation');
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _components = {
+  FeedView: {
+    displayName: 'FeedView'
+  },
+  Comments: {
+    displayName: 'Comments'
+  }
+};
+
+var _node_modulesReactTransformHmrLibIndexJs2 = (0, _index2.default)({
+  filename: '/home/giise/candidtwo/App.js',
+  components: _components,
+  locals: [module],
+  imports: [_react3.default]
+});
+
+function _wrapComponent(id) {
+  return function (Component) {
+    return _node_modulesReactTransformHmrLibIndexJs2(Component, id);
+  };
+}
+
+var firebaseConfig = {
+  apiKey: "API-key",
+  authDomain: "candidtwo.firebaseapp.com",
+  databaseURL: "https://candidtwo.firebaseio.com",
+  storageBucket: "candidtwo.appspot.com"
+};
+
+var firebaseApp = firebase.initializeApp(firebaseConfig);
+
+var fontLoaded = false;
+var ref = firebase.database().ref('posts');
+var brightColor = ['#1daff1', '#147c41', '#9dcd46', '#d3832e', '#3a6ea0', '#aa39ab', '#1daff1', '#cb313b', '#5ec399', '#ee9545', '#9bb671', '#147c3f', '#e2be28', '#cb313b', '#58c493', '#445161', '#22cbb8', '#1daff1', '#147c41', '#9dcd46', '#d3832e', '#3a6ea0', '#aa39ab', '#cb313b', '#5ec399', '#ee9545', '#9bb671', '#147c3f', '#e2be28', '#cb313b', '#58c493', '#445161', '#22cbb8', '#1daff1', '#147c41', '#9dcd46', '#d3832e', '#3a6ea0', '#aa39ab', '#cb313b', '#5ec399', '#ee9545', '#9bb671', '#147c3f', '#e2be28', '#cb313b', '#58c493', '#445161', '#22cbb8', '#1daff1', '#147c41', '#9dcd46', '#d3832e', '#3a6ea0', '#aa39ab', '#cb313b', '#5ec399', '#ee9545', '#9bb671', '#147c3f', '#e2be28', '#cb313b', '#58c493', '#445161', '#22cbb8', '#1daff1', '#147c41', '#9dcd46', '#d3832e', '#3a6ea0', '#aa39ab', '#cb313b', '#5ec399', '#ee9545', '#9bb671', '#147c3f', '#e2be28', '#cb313b', '#58c493', '#445161', '#22cbb8', '#1daff1', '#147c41', '#9dcd46', '#d3832e', '#3a6ea0', '#aa39ab', '#cb313b', '#5ec399', '#ee9545', '#9bb671', '#147c3f', '#e2be28', '#cb313b', '#58c493', '#445161', '#22cbb8', '#1daff1', '#147c41', '#9dcd46', '#d3832e', '#3a6ea0', '#aa39ab', '#cb313b', '#5ec399', '#ee9545', '#9bb671', '#147c3f', '#e2be28', '#cb313b', '#58c493', '#445161', '#22cbb8'];
+var darkColor = ['#147aa8', '#0f582d', '#6c8f31', '#935b1e', '#274c69', '#62205d', '#147aa8', '#8c242d', '#3e8867', '#a66b33', '#708051', '#0e5930', '#9d841f', '#8c242d', '#3c8864', '#2e3740', '#168b7b', '#147aa8', '#0f582d', '#6c8f31', '#935b1e', '#274c69', '#62205d', '#8c242d', '#3e8867', '#a66b33', '#708051', '#0e5930', '#9d841f', '#8c242d', '#3c8864', '#2e3740', '#168b7b', '#147aa8', '#0f582d', '#6c8f31', '#935b1e', '#274c69', '#62205d', '#8c242d', '#3e8867', '#a66b33', '#708051', '#0e5930', '#9d841f', '#8c242d', '#3c8864', '#2e3740', '#168b7b', '#147aa8', '#0f582d', '#6c8f31', '#935b1e', '#274c69', '#62205d', '#8c242d', '#3e8867', '#a66b33', '#708051', '#0e5930', '#9d841f', '#8c242d', '#3c8864', '#2e3740', '#168b7b', '#147aa8', '#0f582d', '#6c8f31', '#935b1e', '#274c69', '#62205d', '#8c242d', '#3e8867', '#a66b33', '#708051', '#0e5930', '#9d841f', '#8c242d', '#3c8864', '#2e3740', '#168b7b', '#147aa8', '#0f582d', '#6c8f31', '#935b1e', '#274c69', '#62205d', '#8c242d', '#3e8867', '#a66b33', '#708051', '#0e5930', '#9d841f', '#8c242d', '#3c8864', '#2e3740', '#168b7b', '#147aa8', '#0f582d', '#6c8f31', '#935b1e', '#274c69', '#62205d', '#8c242d', '#3e8867', '#a66b33', '#708051', '#0e5930', '#9d841f', '#8c242d', '#3c8864', '#2e3740', '#168b7b'];
+var animalNames = ['WittyRhino', 'FriendlyRhino', 'SincereHedgehog', 'RestlessShark', 'WittyHedgehog', 'RestlessRabbit', 'WittyShark', 'WittyRabbit', 'FriendlyShark', 'RestlessHedgehog', 'SincereToad', 'SincereRhino', 'ExuberantRaptor', 'RestlessToad', 'SincereShark', 'FriendlyHedgehog', 'SincereRabbit', 'WittyToad', 'RestlessRhino', 'FriendlyToad', 'FriendlyRabbit', 'WittyRhino', 'FriendlyRhino', 'SincereHedgehog', 'RestlessShark', 'WittyHedgehog', 'RestlessRabbit', 'WittyShark', 'WittyRabbit', 'FriendlyShark', 'RestlessHedgehog', 'SincereToad', 'SincereRhino', 'RestlessToad', 'SincereShark', 'FriendlyHedgehog', 'SincereRabbit', 'WittyToad', 'RestlessRhino', 'FriendlyToad', 'FriendlyRabbit', 'WittyRhino', 'FriendlyRhino', 'SincereHedgehog', 'RestlessShark', 'WittyHedgehog', 'RestlessRabbit', 'WittyShark', 'WittyRabbit', 'FriendlyShark', 'RestlessHedgehog', 'SincereToad', 'SincereRhino', 'RestlessToad', 'SincereShark', 'FriendlyHedgehog', 'SincereRabbit', 'WittyToad', 'RestlessRhino', 'FriendlyToad', 'FriendlyRabbit', 'WittyRhino', 'FriendlyRhino', 'SincereHedgehog', 'RestlessShark', 'WittyHedgehog', 'RestlessRabbit', 'WittyShark', 'WittyRabbit', 'FriendlyShark', 'RestlessHedgehog', 'SincereToad', 'SincereRhino', 'RestlessToad', 'SincereShark', 'FriendlyHedgehog', 'SincereRabbit', 'WittyToad', 'RestlessRhino', 'FriendlyToad', 'FriendlyRabbit', 'WittyRhino', 'FriendlyRhino', 'SincereHedgehog', 'RestlessShark', 'WittyHedgehog', 'RestlessRabbit', 'WittyShark', 'WittyRabbit', 'FriendlyShark', 'RestlessHedgehog', 'SincereToad', 'SincereRhino', 'RestlessToad', 'SincereShark', 'FriendlyHedgehog', 'SincereRabbit', 'WittyToad', 'RestlessRhino', 'FriendlyToad', 'FriendlyRabbit', 'WittyRhino', 'FriendlyRhino', 'SincereHedgehog', 'RestlessShark', 'WittyHedgehog', 'RestlessRabbit', 'WittyShark', 'WittyRabbit', 'FriendlyShark', 'RestlessHedgehog', 'SincereToad', 'SincereRhino', 'RestlessToad', 'SincereShark', 'FriendlyHedgehog', 'SincereRabbit', 'WittyToad', 'RestlessRhino', 'FriendlyToad', 'FriendlyRabbit', 'WittyRhino', 'FriendlyRhino', 'SincereHedgehog', 'RestlessShark', 'WittyHedgehog', 'RestlessRabbit', 'WittyShark', 'WittyRabbit', 'FriendlyShark', 'RestlessHedgehog', 'SincereToad', 'SincereRhino', 'RestlessToad', 'SincereShark', 'FriendlyHedgehog', 'SincereRabbit', 'WittyToad', 'RestlessRhino', 'FriendlyToad', 'FriendlyRabbit', 'WittyRhino', 'FriendlyRhino', 'SincereHedgehog', 'RestlessShark', 'WittyHedgehog', 'RestlessRabbit', 'WittyShark', 'WittyRabbit', 'FriendlyShark', 'RestlessHedgehog', 'SincereToad', 'SincereRhino', 'RestlessToad', 'SincereShark', 'FriendlyHedgehog', 'SincereRabbit', 'WittyToad', 'RestlessRhino', 'FriendlyToad', 'FriendlyRabbit', 'WittyRhino', 'FriendlyRhino', 'SincereHedgehog', 'RestlessShark', 'WittyHedgehog', 'RestlessRabbit', 'WittyShark', 'WittyRabbit', 'FriendlyShark', 'RestlessHedgehog', 'SincereToad', 'SincereRhino', 'RestlessToad', 'SincereShark', 'FriendlyHedgehog', 'SincereRabbit', 'WittyToad', 'RestlessRhino', 'FriendlyToad', 'FriendlyRabbit', 'WittyRhino', 'FriendlyRhino', 'SincereHedgehog', 'RestlessShark', 'WittyHedgehog', 'RestlessRabbit', 'WittyShark', 'WittyRabbit', 'FriendlyShark', 'RestlessHedgehog', 'SincereToad', 'SincereRhino', 'RestlessToad', 'SincereShark', 'FriendlyHedgehog', 'SincereRabbit', 'WittyToad', 'RestlessRhino', 'FriendlyToad', 'FriendlyRabbit'];
+var newPostRef = ref.push();
+
+var postWidth = 360;
+
+var FeedView = _wrapComponent('FeedView')((_temp = _class = function (_React$Component) {
+  _inherits(FeedView, _React$Component);
+
+  _createClass(FeedView, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      Expo.Font.loadAsync({
+        'JosefinSans-Regular.ttf': require('./JosefinSans-Regular.ttf')
+      });
+    }
+  }]);
+
+  function FeedView(props) {
+    _classCallCheck(this, FeedView);
+
+    var _this = _possibleConstructorReturn(this, (FeedView.__proto__ || Object.getPrototypeOf(FeedView)).call(this, props));
+
+    _this.state = {
+      fontLoaded: false
+    };
+
+    _this.state = { postInput: "" };
+    return _this;
+  }
+
+  _createClass(FeedView, [{
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      this.getItems();
+    }
+  }, {
+    key: 'getItems',
+    value: function getItems() {
+      var _this2 = this;
+
+      var items = [];
+      var query = ref.orderByKey();
+      query.once('value', function (snap) {
+        snap.forEach(function (child) {
+          items.push({
+            content: child.val().content,
+            key: child.key
+          });
+        });
+        items.reverse();
+      }).then(function () {
+        _this2.setState({ firebaseItems: items });
+      });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this3 = this;
+
+      return _react3.default.createElement(
+        _reactNative.View,
+        { style: styles.container },
+        _react3.default.createElement(
+          _reactNative.View,
+          { style: styles.button },
+          _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 28, backgroundColor: '#e8e8e8' } }),
+          _react3.default.createElement(_reactNative.Button, {
+            onPress: function onPress() {
+              return _this3.setState({ fontLoaded: true });
+            },
+            title: 'Get started anonymously!',
+            color: '#fe8200',
+            accessibilityLabel: 'Render the app'
+          })
+        ),
+        this.state.fontLoaded ? _react3.default.createElement(
+          _reactNative.View,
+          { style: styles.container },
+          _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 25, backgroundColor: '#e8e8e8' } }),
+          _react3.default.createElement(
+            _reactNative.Text,
+            { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 16 } },
+            'What is on your mind? Create a post!'
+          ),
+          _react3.default.createElement(_reactNative.TextInput, {
+            style: { height: 35, width: 320, borderColor: '#303030', borderWidth: 2, borderRadius: 7, paddingRight: 10, paddingLeft: 10, backgroundColor: '#D3D3D3' },
+            onChangeText: function onChangeText(postInput) {
+              return _this3.setState({ postInput: postInput });
+            },
+            value: this.state.postInput
+          }),
+          _react3.default.createElement(_reactNative.Button, {
+            style: { justifyContent: 'center' },
+            onPress: function onPress() {
+              if (_this3.state.postInput.length > 0) {
+                newPostRef.set({ content: _this3.state.postInput });
+                _this3.setState({ postInput: "Uploaded! Refresh app before posting again." });
+              } else {
+                _this3.setState({ postInput: "You have to add some content before you post." });
+              }
+            },
+            title: '   +   ',
+            color: '#fe8200'
+          }),
+          _react3.default.createElement(_reactNative.View, { style: { width: 2500, height: 3, backgroundColor: '#ffc800' } }),
+          _react3.default.createElement(_reactNative.View, { style: { width: 2500, height: 3, backgroundColor: '#ff0037' } }),
+          _react3.default.createElement(
+            _reactNative.ScrollView,
+            { style: { paddingLeft: 5, paddingRight: 5 } },
+            _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' } }),
+            _react3.default.createElement(_reactNative.Button, {
+              style: { justifyContent: 'center' },
+              onPress: function onPress() {
+                _this3.getItems();
+              },
+              title: 'Check for new posts!',
+              color: '#2d1aff'
+            }),
+            _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' } }),
+            _react3.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 250, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10 } },
+              _react3.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: '#fe8200', textAlign: 'center' } },
+                'Welcome to Phoenix Alpha 0.1'
+              ),
+              _react3.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#696969', textAlign: 'center' } },
+                'This app was made to let people be completely honest about what they are thinking! Please remember that this is the first version of the app, and is missing many features. More updates are coming soon!'
+              )
+            ),
+            _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' } }),
+            _react3.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 200, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10 } },
+              _react3.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: '#fe8200', textAlign: 'center' } },
+                'Spam Policy'
+              ),
+              _react3.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#696969', textAlign: 'center' } },
+                'I will never silence any honest opinions that people might have on this app, but to keep the feed interesting for everybody I will remove spam posts (one or two word posts that do not serve any purpose)'
+              )
+            ),
+            _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' } }),
+            _react3.default.createElement(_reactNative.FlatList, {
+              data: this.state.firebaseItems,
+              renderItem: function renderItem(_ref) {
+                var item = _ref.item,
+                    index = _ref.index;
+                return _react3.default.createElement(
+                  _reactNative.View,
+                  null,
+                  _react3.default.createElement(
+                    _reactNative.View,
+                    { style: { width: parseInt(_this3.state.postWidth), height: 35, backgroundColor: brightColor[Math.floor(item.content.length / 9)], borderTopLeftRadius: 5, borderTopRightRadius: 5, paddingTop: 5, paddingLeft: 5 } },
+                    _react3.default.createElement(
+                      _reactNative.Text,
+                      { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 22, color: '#ffffff' } },
+                      animalNames[Math.floor(item.content.length / 5)]
+                    )
+                  ),
+                  _react3.default.createElement(
+                    _reactNative.View,
+                    { style: { width: parseInt(_this3.state.postWidth), height: item.content.length / 3 * 2 + 110, backgroundColor: brightColor[Math.floor(item.content.length / 9)], alignItems: 'center', justifyContent: 'center', paddingLeft: 10, paddingRight: 10 } },
+                    _react3.default.createElement(
+                      _reactNative.Text,
+                      { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 22, color: '#ffffff', textAlign: 'center' } },
+                      item.content
+                    )
+                  ),
+                  _react3.default.createElement(
+                    _reactNative.View,
+                    { style: { width: parseInt(_this3.state.postWidth), height: 40, borderBottomLeftRadius: 5, borderBottomRightRadius: 5, backgroundColor: darkColor[Math.floor(item.content.length / 9)], flexDirection: 'row', paddingLeft: 5 } },
+                    _react3.default.createElement(_reactNative.Button, {
+                      style: { justifyContent: 'center' },
+                      onPress: function onPress() {
+                        _this3.props.navigation.navigate('CommentScreen', { postKey: item.key, postContent: item.content });
+                      },
+                      title: '    >    ',
+                      color: '#fe8200'
+                    })
+                  ),
+                  _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' } })
+                );
+              }
+            })
+          )
+        ) : null
+      );
+    }
+  }]);
+
+  return FeedView;
+}(_react3.default.Component), _class.navigationOptions = {
+  tabBarLabel: 'Feed',
+  tabBarIcon: function tabBarIcon() {
+    return _react3.default.createElement(_reactNative.Image, {
+      source: require('./CandidtwoImages/feedtab.png'),
+      style: [styles.icon, { tintColor: '#A9A9A9' }]
+    });
+  }
+}, _temp));
+
+var Comments = _wrapComponent('Comments')((_temp2 = _class2 = function (_React$Component2) {
+  _inherits(Comments, _React$Component2);
+
+  function Comments(props) {
+    _classCallCheck(this, Comments);
+
+    var _this4 = _possibleConstructorReturn(this, (Comments.__proto__ || Object.getPrototypeOf(Comments)).call(this, props));
+
+    _this4.state = {
+      fontLoaded: false
+    };
+
+    _this4.getItems = function () {
+      var items = [];
+
+      firebase.database().ref('/posts/' + _this4.state.passKey).orderByKey().on('value', function (snap) {
+        snap.forEach(function (child) {
+          items.push({
+            comment: child.val().comment
+          });
+        });
+        _this4.setState({ firebaseItems: items });
+      }, function (error) {
+        return console.log(error);
+      });
+    };
+
+    _this4.renderRow = function (_ref2) {
+      var item = _ref2.item,
+          index = _ref2.index;
+
+      return _react3.default.createElement(
+        _reactNative.View,
+        null,
+        _react3.default.createElement(
+          _reactNative.View,
+          { style: {
+              width: parseInt(_this4.state.postWidth),
+              height: item.length,
+              backgroundColor: '#ffffff',
+              alignItems: 'left',
+              justifyContent: 'center',
+              paddingLeft: 10,
+              paddingRight: 10,
+              borderRadius: 5
+            } },
+          _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 30, backgroundColor: '#ffffff' } }),
+          _react3.default.createElement(
+            _reactNative.Text,
+            { style: {
+                fontSize: 22,
+                color: '#000000',
+                textAlign: 'center',
+                fontFamily: 'JosefinSans-Regular.ttf'
+              } },
+            item.comment
+          ),
+          _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 30, backgroundColor: '#ffffff' } })
+        ),
+        _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' } })
+      );
+    };
+
+    _this4.state = { commentInput: "" };
+    return _this4;
+  }
+
+  _createClass(Comments, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      Expo.Font.loadAsync({
+        'JosefinSans-Regular.ttf': require('./JosefinSans-Regular.ttf')
+      });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this5 = this;
+
+      var params = this.props.navigation.state.params;
+
+
+      return _react3.default.createElement(
+        _reactNative.View,
+        { style: styles.container },
+        _react3.default.createElement(
+          _reactNative.View,
+          { style: styles.button },
+          _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 28, backgroundColor: '#e8e8e8' } }),
+          _react3.default.createElement(_reactNative.Button, {
+            onPress: function onPress() {
+              return _this5.setState({ fontLoaded: true });
+            },
+            title: 'Load the second tab',
+            color: '#fe8200',
+            accessibilityLabel: 'Render the app'
+          })
+        ),
+        this.state.fontLoaded ? _react3.default.createElement(
+          _reactNative.View,
+          { style: styles.container },
+          _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 2, backgroundColor: '#e8e8e8' } }),
+          _react3.default.createElement(_reactNative.Button, {
+            onPress: function onPress() {
+              return _this5.setState({ passKey: params.postKey });
+            },
+            title: 'Press Me Before Commenting!',
+            color: '#fe8200'
+          }),
+          _react3.default.createElement(
+            _reactNative.Text,
+            { style: { fontSize: 16, fontFamily: 'JosefinSans-Regular.ttf' } },
+            'Leave your thoughts in a comment!'
+          ),
+          _react3.default.createElement(_reactNative.TextInput, {
+            style: { height: 35, width: 320, borderColor: '#303030', borderWidth: 2, borderRadius: 7, paddingRight: 10, paddingLeft: 10, backgroundColor: '#D3D3D3' },
+            onChangeText: function onChangeText(commentInput) {
+              return _this5.setState({ commentInput: commentInput });
+            },
+            value: this.state.commentInput
+          }),
+          _react3.default.createElement(_reactNative.Button, {
+            style: { justifyContent: 'center' },
+            onPress: function onPress() {
+              firebase.database().ref('posts').child(_this5.state.passKey).push().set({ comment: _this5.state.commentInput });
+            },
+            title: '   +   ',
+            color: '#fe8200'
+          }),
+          _react3.default.createElement(_reactNative.View, { style: { width: 2500, height: 3, backgroundColor: '#ffc800' } }),
+          _react3.default.createElement(_reactNative.View, { style: { width: 2500, height: 3, backgroundColor: '#ff0037' } }),
+          _react3.default.createElement(
+            _reactNative.ScrollView,
+            { style: { paddingLeft: 5, paddingRight: 5 } },
+            _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' } }),
+            _react3.default.createElement(_reactNative.View, { style: { alignItems: 'center', width: parseInt(this.state.postWidth), height: 35, backgroundColor: brightColor[Math.floor(params && params.postContent.length / 9)], borderTopRightRadius: 5, borderTopLeftRadius: 5, paddingRight: 10, paddingLeft: 10 } }),
+            _react3.default.createElement(
+              _reactNative.View,
+              { style: { paddingLeft: 10, paddingRight: 10, width: parseInt(this.state.postWidth), height: (params && params.postContent.length / 3) * 2 + 110, backgroundColor: brightColor[Math.floor(params && params.postContent.length / 9)], justifyContent: 'center' } },
+              _react3.default.createElement(
+                _reactNative.Text,
+                { style: { fontSize: 22, color: '#ffffff', textAlign: 'center', fontFamily: 'JosefinSans-Regular.ttf' } },
+                params && params.postContent
+              )
+            ),
+            _react3.default.createElement(_reactNative.View, { style: { width: parseInt(this.state.postWidth), height: 40, borderBottomLeftRadius: 5, borderBottomRightRadius: 5, backgroundColor: darkColor[Math.floor(params && params.postContent.length / 9)], flexDirection: 'row', paddingLeft: 5 } }),
+            _react3.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' } }),
+            _react3.default.createElement(_reactNative.Button, {
+              style: { justifyContent: 'center' },
+              title: 'Check for new comments!',
+              color: '#2d1aff',
+              onPress: function onPress() {
+                _this5.getItems();
+              }
+            }),
+            _react3.default.createElement(_reactNative.FlatList, { data: this.state.firebaseItems,
+              renderItem: this.renderRow }),
+            _react3.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 6, backgroundColor: '#e8e8e8' } },
+              _react3.default.createElement(
+                _reactNative.Text,
+                { style: { fontSize: 22, color: '#e8e8e8', textAlign: 'center' } },
+                'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+              )
+            )
+          )
+        ) : null
+      );
+    }
+  }]);
+
+  return Comments;
+}(_react3.default.Component), _class2.navigationOptions = {
+  tabBarLabel: 'Comments',
+  tabBarIcon: function tabBarIcon() {
+    return _react3.default.createElement(_reactNative.Image, {
+      source: require('./CandidtwoImages/comments.png'),
+      style: [styles.icon, { tintColor: '#A9A9A9' }]
+    });
+  }
+}, _temp2));
+
+var styles = _reactNative.StyleSheet.create({
+  container: {
+    flex: 100,
+    backgroundColor: '#e8e8e8',
+    alignItems: 'center'
+  },
+  button: {
+    flex: 1,
+    backgroundColor: '#e8e8e8',
+    alignItems: 'center'
+  },
+  icon: {
+    width: 27,
+    height: 27
+  }
+});
+
+var MyApp = (0, _reactNavigation.TabNavigator)({
+
+  Feed: {
+    screen: FeedView
+  },
+  CommentScreen: {
+    screen: Comments
+  }
+}, {
+  tabBarPosition: 'bottom',
+  animationEnabled: true,
+  tabBarOptions: {
+    activeTintColor: '#fe8200',
+    inactiveTintColor: '#A9A9A9',
+    activeBackgroundColor: '#DCDCDC',
+    inactiveBackgroundColor: '#ffffff',
+    showIcon: 'true',
+    showLabel: 'false'
+  },
+  tabBarOptions: {
+    showIcon: 'true',
+    style: {
+      backgroundColor: 'white'
+    },
+    tabStyle: {
+      height: 53
+    },
+    labelStyle: {
+      fontSize: 14,
+      color: 'grey'
+    },
+    iconStyle: {
+      showIcon: 'true'
+    },
+    indicatorStyle: {
+      backgroundColor: '#fe8200'
+    }
+  }
+});
+
+exports.default = MyApp;

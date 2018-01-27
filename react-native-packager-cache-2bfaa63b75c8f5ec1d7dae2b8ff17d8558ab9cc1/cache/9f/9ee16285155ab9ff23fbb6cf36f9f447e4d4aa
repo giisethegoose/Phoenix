@@ -1,0 +1,17 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var util_1 = require("@firebase/util");
+var TransactionResult = function () {
+    function TransactionResult(committed, snapshot) {
+        this.committed = committed;
+        this.snapshot = snapshot;
+    }
+
+    TransactionResult.prototype.toJSON = function () {
+        util_1.validateArgCount('TransactionResult.toJSON', 0, 1, arguments.length);
+        return { committed: this.committed, snapshot: this.snapshot.toJSON() };
+    };
+    return TransactionResult;
+}();
+exports.TransactionResult = TransactionResult;

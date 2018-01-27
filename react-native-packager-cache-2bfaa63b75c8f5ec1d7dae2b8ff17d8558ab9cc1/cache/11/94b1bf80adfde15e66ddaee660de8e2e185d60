@@ -1,0 +1,22 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var DOMStorageWrapper_1 = require("./DOMStorageWrapper");
+var MemoryStorage_1 = require("./MemoryStorage");
+
+var createStoragefor = function createStoragefor(domStorageName) {
+    try {
+        if (typeof window !== 'undefined' && typeof window[domStorageName] !== 'undefined') {
+            var domStorage = window[domStorageName];
+            domStorage.setItem('firebase:sentinel', 'cache');
+            domStorage.removeItem('firebase:sentinel');
+            return new DOMStorageWrapper_1.DOMStorageWrapper(domStorage);
+        }
+    } catch (e) {}
+
+    return new MemoryStorage_1.MemoryStorage();
+};
+
+exports.PersistentStorage = createStoragefor('localStorage');
+
+exports.SessionStorage = createStoragefor('sessionStorage');

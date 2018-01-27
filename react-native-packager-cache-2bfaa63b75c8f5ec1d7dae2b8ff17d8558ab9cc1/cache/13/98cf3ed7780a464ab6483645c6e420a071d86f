@@ -1,0 +1,92 @@
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = undefined;
+
+var _react = require('react');
+
+var React = babelHelpers.interopRequireWildcard(_react);
+
+var _reactNative = require('react-native');
+
+var TabBarIcon = function (_React$PureComponent) {
+  babelHelpers.inherits(TabBarIcon, _React$PureComponent);
+
+  function TabBarIcon() {
+    babelHelpers.classCallCheck(this, TabBarIcon);
+    return babelHelpers.possibleConstructorReturn(this, (TabBarIcon.__proto__ || Object.getPrototypeOf(TabBarIcon)).apply(this, arguments));
+  }
+
+  babelHelpers.createClass(TabBarIcon, [{
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          position = _props.position,
+          scene = _props.scene,
+          navigation = _props.navigation,
+          activeTintColor = _props.activeTintColor,
+          inactiveTintColor = _props.inactiveTintColor,
+          style = _props.style;
+      var route = scene.route,
+          index = scene.index;
+      var routes = navigation.state.routes;
+
+      var inputRange = [-1].concat(babelHelpers.toConsumableArray(routes.map(function (x, i) {
+        return i;
+      })));
+      var activeOpacity = position.interpolate({
+        inputRange: inputRange,
+        outputRange: inputRange.map(function (i) {
+          return i === index ? 1 : 0;
+        })
+      });
+      var inactiveOpacity = position.interpolate({
+        inputRange: inputRange,
+        outputRange: inputRange.map(function (i) {
+          return i === index ? 0 : 1;
+        })
+      });
+
+      return React.createElement(
+        _reactNative.View,
+        { style: style },
+        React.createElement(
+          _reactNative.Animated.View,
+          { style: [styles.icon, { opacity: activeOpacity }] },
+          this.props.renderIcon({
+            route: route,
+            index: index,
+            focused: true,
+            tintColor: activeTintColor
+          })
+        ),
+        React.createElement(
+          _reactNative.Animated.View,
+          { style: [styles.icon, { opacity: inactiveOpacity }] },
+          this.props.renderIcon({
+            route: route,
+            index: index,
+            focused: false,
+            tintColor: inactiveTintColor
+          })
+        )
+      );
+    }
+  }]);
+  return TabBarIcon;
+}(React.PureComponent);
+
+exports.default = TabBarIcon;
+
+
+var styles = _reactNative.StyleSheet.create({
+  icon: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
+});

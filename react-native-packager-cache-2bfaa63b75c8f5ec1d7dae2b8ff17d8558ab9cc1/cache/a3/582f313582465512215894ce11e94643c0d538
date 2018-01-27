@@ -1,0 +1,23 @@
+var counter = 0;
+
+var increment = function increment() {
+  counter++;
+  console.log('+ counter: ' + counter);
+};
+
+var zero = function zero() {
+  counter = 0;
+  console.log('-- counter: ' + counter);
+};
+
+var returnCounter = function returnCounter() {
+  return counter;
+};
+
+var worker = {
+  increment: increment,
+  zero: zero,
+  counter: counter
+};
+
+module.exports = worker;

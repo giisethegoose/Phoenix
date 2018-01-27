@@ -1,0 +1,2752 @@
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _class,
+    _temp,
+    _jsxFileName = '/home/giise/candidtwo/App.js',
+    _class3,
+    _temp3,
+    _class4,
+    _temp5;
+
+var _react = require('react');
+
+var _react2 = babelHelpers.interopRequireDefault(_react);
+
+var _reactNative = require('react-native');
+
+var _expo = require('expo');
+
+var _firebase = require('firebase');
+
+var firebase = babelHelpers.interopRequireWildcard(_firebase);
+
+var _reactNavigation = require('react-navigation');
+
+var _names = require('./names.js');
+
+var regeneratorRuntime = require('regenerator-runtime');
+
+var firebaseConfig = {
+  apiKey: "API-key",
+  authDomain: "candidtwo.firebaseapp.com",
+  databaseURL: "https://candidtwo.firebaseio.com",
+  storageBucket: "candidtwo.appspot.com"
+};
+
+var firebaseApp = firebase.initializeApp(firebaseConfig);
+
+var fontLoaded = false;
+var ref = firebase.database().ref('posts');
+var newPostRef = ref.push();
+
+var postWidth = 360;
+
+var FeedView = (_temp = _class = function (_React$Component) {
+  babelHelpers.inherits(FeedView, _React$Component);
+  babelHelpers.createClass(FeedView, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      return regeneratorRuntime.async(function componentDidMount$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _context.next = 2;
+              return regeneratorRuntime.awrap(_expo.Font.loadAsync({
+                'JosefinSans-Regular.ttf': require('./JosefinSans-Regular.ttf')
+              }));
+
+            case 2:
+
+              this.setState({ fontLoaded: true });
+
+            case 3:
+            case 'end':
+              return _context.stop();
+          }
+        }
+      }, null, this);
+    }
+  }]);
+
+  function FeedView(props) {
+    babelHelpers.classCallCheck(this, FeedView);
+
+    var _this = babelHelpers.possibleConstructorReturn(this, (FeedView.__proto__ || Object.getPrototypeOf(FeedView)).call(this, props));
+
+    _this.state = {
+      fontLoaded: false
+    };
+
+    _this.state = { postInput: "" };
+    return _this;
+  }
+
+  babelHelpers.createClass(FeedView, [{
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      this.getItems();
+    }
+  }, {
+    key: 'getItems',
+    value: function getItems() {
+      var _this2 = this;
+
+      var items = [];
+      var query = ref.orderByKey();
+      query.once('value', function (snap) {
+        snap.forEach(function (child) {
+          items.push({
+            content: child.val().content,
+            key: child.key,
+            nameID: child.val().userNameId,
+            userID: child.val().userID,
+            commentPreview: child.val().newestComment,
+            comments: child.val().comments,
+            likes: child.val().likes,
+            dislikes: child.val().dislikes,
+            group: child.val().group,
+            remove: true
+          });
+        });
+        items.reverse();
+      }).then(function () {
+        _this2.setState({ items: items });
+        firebase.database().ref('users/' + _names.expoID + '/groups/random').once("value", function (dataSnapshot) {
+          var random = dataSnapshot.val().joined;
+        });
+        firebase.database().ref('users/' + _names.expoID + '/groups/The Anime Man').once("value", function (dataSnapshot) {
+          var TheAnimeMan = dataSnapshot.val().joined;
+        });
+        firebase.database().ref('users/' + _names.expoID + '/groups/LGBT').once("value", function (dataSnapshot) {
+          var LGBT = dataSnapshot.val().joined;
+        });
+        firebase.database().ref('users/' + _names.expoID + '/groups/pol').once("value", function (dataSnapshot) {
+          var pol = dataSnapshot.val().joined;
+        }).then(function () {
+          var groups = [];
+
+          groups.push('LGBT');
+          groups.push('pol');
+          _this2.setState({ groups: groups });
+          for (i = 0; i < _this2.state.items.length; i++) {
+            for (k = 0; k < groups.length; k++) {
+              if (groups[k] == _this2.state.items[i].group) {
+                _this2.setState.items[i]({ remove: false });
+              }
+            }
+          }
+          for (i = 0; i < _this2.state.items.length; i++) {
+            if (_this2.state.items[i].remove == true) {
+              _this2.state.items.splice(i, 1);
+              i = i - 1;
+            }
+          }
+        }).then(function () {
+          _this2.setState({ firebaseItems: _this2.state.items });
+        });
+      });
+    }
+  }, {
+    key: 'pressLike',
+    value: function pressLike(key, likes, dislikes) {
+      var _this3 = this;
+
+      var usersLiked = [];
+      var query = firebase.database().ref('posts/' + key + '/usersVoted').orderByKey();
+      query.once('value', function (snap) {
+        snap.forEach(function (child) {
+          usersLiked.push({
+            expoID: child.val().expoID
+          });
+        });
+      }).then(function () {
+        var addUserID = true;
+        for (i = 0; i < usersLiked.length; i++) {
+          if (usersLiked[i].expoID == _names.expoID) {
+            var addUserID = false;
+          }
+        }
+        if (addUserID == true) {
+          firebase.database().ref('posts/' + key + '/votes/' + _names.expoID).update({ voteNum: '0' });
+          firebase.database().ref('posts/' + key + '/usersVoted').push().set({ expoID: _names.expoID });
+        }
+      }).then(function () {
+        firebase.database().ref('posts/' + key + '/votes/' + _names.expoID).once("value", function (dataSnapshot) {
+          voteNum = dataSnapshot.val().voteNum;
+        }).then(function () {
+          if (voteNum == 0) {
+            firebase.database().ref('posts/' + key).update({ likes: likes + 1 });
+            firebase.database().ref('posts/' + key + '/votes/' + _names.expoID).update({ voteNum: '2' });
+          }
+          _this3.getItems();
+        });
+      });
+    }
+  }, {
+    key: 'pressDislike',
+    value: function pressDislike(key, likes, dislikes) {
+      var _this4 = this;
+
+      var usersLiked = [];
+      var query = firebase.database().ref('posts/' + key + '/usersVoted').orderByKey();
+      query.once('value', function (snap) {
+        snap.forEach(function (child) {
+          usersLiked.push({
+            expoID: child.val().expoID
+          });
+        });
+      }).then(function () {
+        var addUserID = true;
+        for (i = 0; i < usersLiked.length; i++) {
+          if (usersLiked[i].expoID == _names.expoID) {
+            var addUserID = false;
+          }
+        }
+        if (addUserID == true) {
+          firebase.database().ref('posts/' + key + '/votes/' + _names.expoID).update({ voteNum: '0' });
+          firebase.database().ref('posts/' + key + '/usersVoted').push().set({ expoID: _names.expoID });
+        }
+      }).then(function () {
+        firebase.database().ref('posts/' + key + '/votes/' + _names.expoID).once("value", function (dataSnapshot) {
+          voteNum = dataSnapshot.val().voteNum;
+        }).then(function () {
+          if (voteNum == 0) {
+            firebase.database().ref('posts/' + key).update({ dislikes: dislikes + 1 });
+            firebase.database().ref('posts/' + key + '/votes/' + _names.expoID).update({ voteNum: '1' });
+          }_this4.getItems();
+        });
+      });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this5 = this;
+
+      return _react2.default.createElement(
+        _reactNative.View,
+        { style: styles.container, __source: {
+            fileName: _jsxFileName,
+            lineNumber: 190
+          }
+        },
+        this.state.fontLoaded ? _react2.default.createElement(
+          _reactNative.View,
+          { style: styles.container, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 193
+            }
+          },
+          _react2.default.createElement(
+            _reactNative.TouchableWithoutFeedback,
+            { onPress: function onPress() {
+                _this5.props.navigation.navigate('Post');
+              }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 194
+              }
+            },
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: 2500, height: 30, backgroundColor: 'green', alignItems: 'center' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 195
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: 'green', alignItems: 'center' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 196
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#f7961d' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 197
+                  }
+                },
+                'Create a Post +'
+              )
+            )
+          ),
+          _react2.default.createElement(
+            _reactNative.TouchableWithoutFeedback,
+            { onPress: function onPress() {
+                _this5.refs._scrollView.scrollTo({ x: 0, y: 0, animated: true });_this5.getItems();
+              }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 203
+              }
+            },
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: 2500, height: 30, backgroundColor: '#f7961d', alignItems: 'center' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 204
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#f7961d', alignItems: 'center' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 205
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontSize: 18, color: 'green' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 206
+                  }
+                },
+                '^ ^ ^'
+              )
+            )
+          ),
+          _react2.default.createElement(
+            _reactNative.ScrollView,
+            { ref: '_scrollView', style: { paddingLeft: 5, paddingRight: 5 }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 212
+              }
+            },
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 214
+              }
+            }),
+            _react2.default.createElement(_reactNative.Button, {
+              style: { justifyContent: 'center' },
+              onPress: function onPress() {
+                _this5.getItems();
+              },
+              title: 'Check for new posts!',
+              color: '#2d1aff',
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 215
+              }
+            }),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 224
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: this.state.postWidth, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10 }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 225
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 226
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: '#fe8200', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 227
+                  }
+                },
+                'Welcome to Phoenix Alpha 0.2'
+              ),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#696969', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 230
+                  }
+                },
+                'Likes and dislikes are finally out! You can not change your vote, so be sure before you vote.'
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 233
+                }
+              })
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 235
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: this.state.postWidth, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10, flexDirection: 'row' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 236
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 20, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 237
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#2d2d2d', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 238
+                  }
+                },
+                '0.02% of the community has been restored, and we are growing!'
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 20, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 242
+                }
+              })
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 245
+              }
+            }),
+            _react2.default.createElement(_reactNative.FlatList, {
+              data: this.state.firebaseItems,
+              renderItem: function renderItem(_ref) {
+                var item = _ref.item,
+                    index = _ref.index;
+                return _react2.default.createElement(
+                  _reactNative.View,
+                  {
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 252
+                    }
+                  },
+                  _react2.default.createElement(
+                    _reactNative.View,
+                    { style: { width: parseInt(_this5.state.postWidth), height: 35, backgroundColor: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)], borderTopLeftRadius: 7, borderTopRightRadius: 7, paddingTop: 5, paddingLeft: 5, flexDirection: 'row' }, __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 253
+                      }
+                    },
+                    _react2.default.createElement(
+                      _reactNative.Text,
+                      { style: { fontWeight: 'bold', fontSize: 18, color: '#ffffff' }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 254
+                        }
+                      },
+                      _names.animalNames[Math.floor(item.content.length / 10 + item.nameID * 2)]
+                    ),
+                    _react2.default.createElement(_reactNative.View, { style: { width: 8, height: 1, backgroundColor: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)] }, __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 257
+                      }
+                    }),
+                    _react2.default.createElement(
+                      _reactNative.Text,
+                      { style: {
+                          fontSize: 18,
+                          color: '#ffffff',
+                          backgroundColor: '#fe8200',
+                          textAlign: 'left',
+                          borderRadius: 5,
+                          fontWeight: 'bold'
+                        }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 258
+                        }
+                      },
+                      Math.floor(item.content.length / 30) + 1
+                    ),
+                    _react2.default.createElement(_reactNative.View, { style: { width: 30, height: 1, backgroundColor: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)] }, __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 268
+                      }
+                    }),
+                    _react2.default.createElement(
+                      _reactNative.Text,
+                      { style: {
+                          fontSize: 18,
+                          color: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)],
+                          backgroundColor: '#ffffff',
+                          textAlign: 'left',
+                          borderRadius: 14,
+                          fontWeight: 'bold'
+                        }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 269
+                        }
+                      },
+                      ' ' + item.group + ' '
+                    )
+                  ),
+                  _react2.default.createElement(
+                    _reactNative.TouchableWithoutFeedback,
+                    { onPress: function onPress() {
+                        _this5.props.navigation.navigate('CommentScreen', { postKey: item.key, postContent: item.content, passNameID: item.nameID, userID: item.userID });
+                      }, __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 280
+                      }
+                    },
+                    _react2.default.createElement(
+                      _reactNative.View,
+                      { style: { width: parseInt(_this5.state.postWidth), height: _this5.state.postWidth, backgroundColor: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)], alignItems: 'center', justifyContent: 'center', paddingLeft: 10, paddingRight: 10, paddingTop: 50, paddingBottom: 60 }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 281
+                        }
+                      },
+                      _react2.default.createElement(
+                        _reactNative.Text,
+                        { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 22, color: '#ffffff', textAlign: 'center' }, __source: {
+                            fileName: _jsxFileName,
+                            lineNumber: 282
+                          }
+                        },
+                        item.content
+                      )
+                    )
+                  ),
+                  _react2.default.createElement(
+                    _reactNative.View,
+                    { style: { width: parseInt(_this5.state.postWidth), height: 40, backgroundColor: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)], flexDirection: 'row', paddingLeft: 5 }, __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 290
+                      }
+                    },
+                    _react2.default.createElement(
+                      _reactNative.TouchableWithoutFeedback,
+                      { onPress: function onPress() {
+                          _this5.getItems();
+                          _this5.pressLike(item.key, item.likes, item.dislikes);
+                          _this5.getItems();
+                        }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 293
+                        }
+                      },
+                      _react2.default.createElement(_reactNative.Image, { style: { height: 39, width: 39, tintColor: 'white' }, source: require('./CandidtwoImages/unlove.png'), __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 298
+                        }
+                      })
+                    ),
+                    _react2.default.createElement(
+                      _reactNative.Text,
+                      { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 22, color: '#ffffff' }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 300
+                        }
+                      },
+                      item.likes
+                    ),
+                    _react2.default.createElement(_reactNative.View, { style: { width: 12, height: 1, backgroundColor: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)] }, __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 308
+                      }
+                    }),
+                    _react2.default.createElement(
+                      _reactNative.TouchableWithoutFeedback,
+                      { onPress: function onPress() {
+                          _this5.getItems();
+                          _this5.pressDislike(item.key, item.likes, item.dislikes);
+                          _this5.getItems();
+                        }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 309
+                        }
+                      },
+                      _react2.default.createElement(_reactNative.Image, { style: { height: 39, width: 39, tintColor: 'white' }, source: require('./CandidtwoImages/undislike.png'), __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 314
+                        }
+                      })
+                    ),
+                    _react2.default.createElement(
+                      _reactNative.Text,
+                      { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 22, color: '#ffffff' }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 316
+                        }
+                      },
+                      item.dislikes
+                    ),
+                    _react2.default.createElement(_reactNative.View, { style: { width: 12, height: 1, backgroundColor: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)] }, __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 322
+                      }
+                    }),
+                    _react2.default.createElement(_reactNative.Image, { style: { height: 39, width: 39 }, source: require('./CandidtwoImages/comments.png'), __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 323
+                      }
+                    }),
+                    _react2.default.createElement(
+                      _reactNative.Text,
+                      { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 22, color: '#ffffff', textAlign: 'center' }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 324
+                        }
+                      },
+                      item.comments
+                    ),
+                    _react2.default.createElement(_reactNative.View, { style: { width: 24, height: 1, backgroundColor: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)] }, __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 329
+                      }
+                    }),
+                    _react2.default.createElement(
+                      _reactNative.TouchableWithoutFeedback,
+                      { onPress: function onPress() {
+                          _reactNative.Clipboard.setString(item.content);_reactNative.Alert.alert('Copied text!');
+                        }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 330
+                        }
+                      },
+                      _react2.default.createElement(_reactNative.Image, { style: { width: 34, height: 34 }, source: require('./CandidtwoImages/copytext.png'), __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 331
+                        }
+                      })
+                    )
+                  ),
+                  _react2.default.createElement(
+                    _reactNative.View,
+                    { style: { width: parseInt(_this5.state.postWidth), height: _this5.state.postWidth, borderBottomLeftRadius: 7, borderBottomRightRadius: 7, backgroundColor: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)], paddingLeft: 10, paddingRight: 10, paddingBottom: 8, paddingTop: 3 }, __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 335
+                      }
+                    },
+                    _react2.default.createElement(
+                      _reactNative.Text,
+                      { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 19, color: '#ffffff', textAlign: 'left' }, numberOfLines: 2, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 336
+                        }
+                      },
+                      item.commentPreview
+                    )
+                  ),
+                  _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 342
+                    }
+                  })
+                );
+              },
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 249
+              }
+            }),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 346
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: this.state.postWidth, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10 }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 347
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 20, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 348
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: '#fe8200', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 349
+                  }
+                },
+                'Heart icon copyright: Benjamin J Sperry, 2017'
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 20, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 352
+                }
+              })
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 354
+              }
+            })
+          )
+        ) : null
+      );
+    }
+  }]);
+  return FeedView;
+}(_react2.default.Component), _class.navigationOptions = {
+  tabBarLabel: 'Feed',
+  tabBarIcon: function tabBarIcon() {
+    return _react2.default.createElement(_reactNative.Image, {
+      source: require('./CandidtwoImages/feedtab.png'),
+      style: [styles.icon, { tintColor: '#A9A9A9' }],
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 28
+      }
+    });
+  }
+}, _temp);
+
+var Comments = function (_React$Component2) {
+  babelHelpers.inherits(Comments, _React$Component2);
+
+  function Comments(props) {
+    babelHelpers.classCallCheck(this, Comments);
+
+    var _this6 = babelHelpers.possibleConstructorReturn(this, (Comments.__proto__ || Object.getPrototypeOf(Comments)).call(this, props));
+
+    _this6.state = {
+      fontLoaded: false
+    };
+
+    _this6.renderRow = function (_ref2) {
+      var item = _ref2.item,
+          index = _ref2.index;
+
+      return _react2.default.createElement(
+        _reactNative.View,
+        { style: {
+            width: parseInt(_this6.state.postWidth),
+            height: 50 + item.length,
+            backgroundColor: '#ffffff',
+            paddingLeft: 10,
+            paddingRight: 10
+          }, __source: {
+            fileName: _jsxFileName,
+            lineNumber: 470
+          }
+        },
+        _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 10, backgroundColor: '#ffffff' }, __source: {
+            fileName: _jsxFileName,
+            lineNumber: 477
+          }
+        }),
+        _react2.default.createElement(
+          _reactNative.View,
+          { style: { width: parseInt(_this6.state.postWidth), height: 25, backgroundColor: '#ffffff', flexDirection: 'row' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 484
+            }
+          },
+          _react2.default.createElement(
+            _reactNative.Text,
+            { style: {
+                fontSize: 16,
+                color: _names.brightColor[item.nameID * 2 + (_this6.state.passContent && Math.floor(_this6.state.passContent.length / 10))],
+                textAlign: 'left',
+                fontWeight: 'bold'
+              }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 486
+              }
+            },
+            _names.animalNames[item.nameID * 2 + (_this6.state.passContent && Math.floor(_this6.state.passContent.length / 10))]
+          ),
+          _react2.default.createElement(
+            _reactNative.Text,
+            { style: {
+                fontSize: 16,
+                color: '#ffffff',
+                backgroundColor: '#fe8200',
+                textAlign: 'left',
+                fontWeight: 'bold',
+                borderRadius: 5
+              }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 495
+              }
+            },
+            _this6.state.passID == item.userID ? "YOU" : ""
+          ),
+          _react2.default.createElement(
+            _reactNative.Text,
+            { style: {
+                fontSize: 16,
+                color: 'gray',
+                textAlign: 'left',
+                fontWeight: 'bold'
+              }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 509
+              }
+            },
+            _this6.state.passUserID == item.userID ? " OP" : ""
+          )
+        ),
+        _react2.default.createElement(
+          _reactNative.Text,
+          { style: {
+              fontSize: 16,
+              color: '#000000',
+              textAlign: 'left'
+            }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 521
+            }
+          },
+          item.comment
+        ),
+        _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 10, backgroundColor: '#ffffff' }, __source: {
+            fileName: _jsxFileName,
+            lineNumber: 528
+          }
+        }),
+        _react2.default.createElement(
+          _reactNative.View,
+          { style: { width: parseInt(_this6.state.postWidth), height: 35, backgroundColor: '#ffffff', flexDirection: 'row', paddingLeft: 5 }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 530
+            }
+          },
+          _react2.default.createElement(
+            _reactNative.TouchableWithoutFeedback,
+            { onPress: function onPress() {
+                _this6.getItems();
+                _this6.pressLike(item.key, item.likes, item.dislikes);
+                _this6.getItems();
+              }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 533
+              }
+            },
+            _react2.default.createElement(_reactNative.Image, { style: { height: 25, width: 25, tintColor: 'grey' }, source: require('./CandidtwoImages/unlove.png'), __source: {
+                fileName: _jsxFileName,
+                lineNumber: 538
+              }
+            })
+          ),
+          _react2.default.createElement(
+            _reactNative.Text,
+            { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 18, color: 'grey' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 540
+              }
+            },
+            item.likes
+          ),
+          _react2.default.createElement(_reactNative.View, { style: { width: 6, height: 1, backgroundColor: '#ffffff' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 544
+            }
+          }),
+          _react2.default.createElement(
+            _reactNative.TouchableWithoutFeedback,
+            { onPress: function onPress() {
+                _this6.getItems();
+                _this6.pressDislike(item.key, item.likes, item.dislikes);
+                _this6.getItems();
+              }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 545
+              }
+            },
+            _react2.default.createElement(_reactNative.Image, { style: { height: 25, width: 25, tintColor: 'grey' }, source: require('./CandidtwoImages/undislike.png'), __source: {
+                fileName: _jsxFileName,
+                lineNumber: 550
+              }
+            })
+          ),
+          _react2.default.createElement(
+            _reactNative.Text,
+            { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 18, color: 'grey' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 552
+              }
+            },
+            item.dislikes
+          ),
+          _react2.default.createElement(_reactNative.View, { style: { width: 20, height: 1, backgroundColor: 'white' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 557
+            }
+          }),
+          _react2.default.createElement(
+            _reactNative.TouchableWithoutFeedback,
+            { onPress: function onPress() {
+                _reactNative.Clipboard.setString(item.comment);_reactNative.Alert.alert('Copied text!');
+              }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 558
+              }
+            },
+            _react2.default.createElement(_reactNative.Image, { style: { width: 20, height: 20 }, source: require('./CandidtwoImages/copytext.png'), __source: {
+                fileName: _jsxFileName,
+                lineNumber: 559
+              }
+            })
+          )
+        )
+      );
+    };
+
+    _this6.state = { commentInput: "" };
+    return _this6;
+  }
+
+  babelHelpers.createClass(Comments, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      Expo.Font.loadAsync({
+        'JosefinSans-Regular.ttf': require('./JosefinSans-Regular.ttf')
+      });
+    }
+  }, {
+    key: 'getItems',
+    value: function getItems() {
+      var _this7 = this;
+
+      var query = firebase.database().ref('posts/' + this.state.passKey + '/commentlist').orderByKey();
+      query.once('value').then(function (snap) {
+        var items = [];
+        snap.forEach(function (child) {
+          items.push({
+            comment: child.val().comment,
+            nameID: child.val().userNameId,
+            userID: child.val().userID,
+            likes: child.val().likes,
+            dislikes: child.val().dislikes,
+            key: child.key
+          });
+        });
+        _this7.setState({ firebaseItems: items });
+        _this7.setState({ firebaseItemsLength: items.length });
+      });
+    }
+  }, {
+    key: 'pressDislike',
+    value: function pressDislike(key, likes, dislikes) {
+      var _this8 = this;
+
+      var usersLiked = [];
+      var query = firebase.database().ref('posts/' + this.state.passKey + '/commentlist/' + key + '/usersVoted').orderByKey();
+      query.once('value', function (snap) {
+        snap.forEach(function (child) {
+          usersLiked.push({
+            expoID: child.val().expoID
+          });
+        });
+      }).then(function () {
+        var addUserID = true;
+        for (i = 0; i < usersLiked.length; i++) {
+          if (usersLiked[i].expoID == _names.expoID) {
+            var addUserID = false;
+          }
+        }
+        if (addUserID == true) {
+          firebase.database().ref('posts/' + _this8.state.passKey + '/commentlist/' + key + '/votes/' + _names.expoID).update({ voteNum: '0' });
+          firebase.database().ref('posts/' + _this8.state.passKey + '/commentlist/' + key + '/usersVoted').push().set({ expoID: _names.expoID });
+        }
+      }).then(function () {
+        firebase.database().ref('posts/' + _this8.state.passKey + '/commentlist/' + key + '/votes/' + _names.expoID).once("value", function (dataSnapshot) {
+          voteNum = dataSnapshot.val().voteNum;
+        }).then(function () {
+          if (voteNum == 0) {
+            firebase.database().ref('posts/' + _this8.state.passKey + '/commentlist/' + key).update({ dislikes: dislikes + 1 });
+            firebase.database().ref('posts/' + _this8.state.passKey + '/commentlist/' + key + '/votes/' + _names.expoID).update({ voteNum: '1' });
+          }
+          _this8.getItems();
+        });
+      });
+    }
+  }, {
+    key: 'pressLike',
+    value: function pressLike(key, likes, dislikes) {
+      var _this9 = this;
+
+      var usersLiked = [];
+      var query = firebase.database().ref('posts/' + this.state.passKey + '/commentlist/' + key + '/usersVoted').orderByKey();
+      query.once('value', function (snap) {
+        snap.forEach(function (child) {
+          usersLiked.push({
+            expoID: child.val().expoID
+          });
+        });
+      }).then(function () {
+        var addUserID = true;
+        for (i = 0; i < usersLiked.length; i++) {
+          if (usersLiked[i].expoID == _names.expoID) {
+            var addUserID = false;
+          }
+        }
+        if (addUserID == true) {
+          firebase.database().ref('posts/' + _this9.state.passKey + '/commentlist/' + key + '/votes/' + _names.expoID).update({ voteNum: '0' });
+          firebase.database().ref('posts/' + _this9.state.passKey + '/commentlist/' + key + '/usersVoted').push().set({ expoID: _names.expoID });
+        }
+      }).then(function () {
+        firebase.database().ref('posts/' + _this9.state.passKey + '/commentlist/' + key + '/votes/' + _names.expoID).once("value", function (dataSnapshot) {
+          voteNum = dataSnapshot.val().voteNum;
+        }).then(function () {
+          if (voteNum == 0) {
+            firebase.database().ref('posts/' + _this9.state.passKey + '/commentlist/' + key).update({ likes: likes + 1 });
+            firebase.database().ref('posts/' + _this9.state.passKey + '/commentlist/' + key + '/votes/' + _names.expoID).update({ voteNum: '2' });
+          }
+          _this9.getItems();
+        });
+      });
+    }
+  }, {
+    key: 'deletePost',
+    value: function deletePost() {
+      var deletePassKey = this.state.passKey;
+      firebase.database().ref('posts/' + deletePassKey).remove();
+    }
+  }, {
+    key: 'notifyPeople',
+    value: function notifyPeople() {
+      var addedUsers = [];
+      var firebaseItems = this.state.firebaseItems;
+      for (i = 0; i < this.state.firebaseItemsLength; i++) {
+        if (_names.expoID != firebaseItems[i].userID && this.state.passUserID != firebaseItems[i].userID) {
+          var uploadID = true;
+          for (k = 0; k < addedUsers.length; k++) {
+            if (this.state.firebaseItems[i].userID == addedUsers[k]) {
+              var uploadID = false;
+              break;
+            }
+          }
+          if (uploadID) {
+            firebase.database().ref('users/' + this.state.firebaseItems[i].userID + '/notifications').push().set({
+              okey: this.state.passKey,
+              content: this.state.commentInput,
+              color: '#ffc7a5',
+              postContent: this.state.passContent,
+              postUserExpoID: this.state.passUserID,
+              postUserNameID: this.state.passNameID,
+              nameNumber: _names.expoNameIDConst * 2 + (this.state.passContent && Math.floor(this.state.passContent.length / 10))
+            });
+            addedUsers.push(this.state.firebaseItems[i].userID);
+          }
+        }
+      }
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this10 = this;
+
+      var params = this.props.navigation.state.params;
+
+
+      return _react2.default.createElement(
+        _reactNative.View,
+        { style: { flex: 10000,
+            backgroundColor: '#e8e8e8' }, __source: {
+            fileName: _jsxFileName,
+            lineNumber: 605
+          }
+        },
+        _react2.default.createElement(
+          _reactNative.View,
+          { style: styles.button, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 607
+            }
+          },
+          _react2.default.createElement(_reactNative.Button, {
+            onPress: function onPress() {
+              _this10.setState({ passKey: params.postKey });
+              _this10.setState({ passUserID: params.userID });
+              _this10.setState({ passContent: params.postContent });
+              _this10.setState({ firebaseItems: '' });
+              _this10.setState({ fontLoaded: true });
+              _this10.setState({ passID: _names.expoID });
+              _this10.setState({ passNameID: params.passNameID });
+              _this10.setState({ passAnimalName: _names.animalNames[_names.expoNameIDConst * 2 + (_this10.state.passContent && Math.floor(_this10.state.passContent.length / 10))] });
+            },
+            title: 'Press to load',
+            color: '#ff0037',
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 608
+            }
+          })
+        ),
+        this.state.fontLoaded ? _react2.default.createElement(
+          _reactNative.View,
+          { style: { flex: 10000,
+              backgroundColor: '#e8e8e8' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 624
+            }
+          },
+          _react2.default.createElement(
+            _reactNative.Text,
+            { style: { fontSize: 16, fontFamily: 'JosefinSans-Regular.ttf' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 627
+              }
+            },
+            'Leave your thoughts in a comment!'
+          ),
+          _react2.default.createElement(
+            _reactNative.View,
+            { style: { width: this.state.postWidth, height: 40, backgroundColor: '#e8e8e8', flexDirection: 'row' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 631
+              }
+            },
+            _react2.default.createElement(_reactNative.TextInput, {
+              style: { height: 40, width: 260, borderColor: '#303030', borderWidth: 2, borderRadius: 7, paddingRight: 7, paddingLeft: 7, backgroundColor: '#D3D3D3' },
+              onChangeText: function onChangeText(commentInput) {
+                return _this10.setState({ commentInput: commentInput });
+              },
+              value: this.state.commentInput,
+              autoCorrect: true,
+              underlineColorAndroid: '#D3D3D3',
+              autoCapitalize: 'sentences',
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 632
+              }
+            }),
+            _react2.default.createElement(_reactNative.Button, {
+              style: { justifyContent: 'center' },
+              onPress: function onPress() {
+                _reactNative.Keyboard.dismiss();
+                _this10.getItems();
+                if (_this10.state.commentInput.length > 0) {
+                  firebase.database().ref('posts/' + _this10.state.passKey + '/commentlist').push().set({ comment: _this10.state.commentInput, userNameId: _names.expoNameIDConst, userID: _names.expoID, likes: 0, dislikes: 0 });
+                  if (_names.expoID != _this10.state.passUserID) {
+                    firebase.database().ref('users/' + _this10.state.passUserID + '/notifications').push().set({
+                      okey: _this10.state.passKey,
+                      content: _this10.state.commentInput,
+                      color: '#ffc7a5',
+                      postContent: params && params.postContent,
+                      postUserExpoID: _this10.state.passUserID,
+                      postUserNameID: params.passNameID,
+                      nameNumber: _names.expoNameIDConst * 2 + (_this10.state.passContent && Math.floor(_this10.state.passContent.length / 10))
+                    });
+                  }
+                  _this10.notifyPeople();
+                  firebase.database().ref('posts').child(_this10.state.passKey).update({ newestComment: 'Comment: ' + _this10.state.commentInput
+                  });
+
+                  firebase.database().ref('posts').child(_this10.state.passKey).update({
+                    comments: _this10.state.firebaseItems.length + 1
+                  });
+                  _this10.setState({ commentInput: '' });
+                  _this10.getItems();
+                } else {
+                  _reactNative.Alert.alert("Please add some content before commenting.");
+                }
+              },
+              title: '   +   ',
+              color: '#fe8200',
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 640
+              }
+            })
+          ),
+          _react2.default.createElement(_reactNative.View, { style: { width: 2500, height: 3, backgroundColor: '#ffc800' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 678
+            }
+          }),
+          _react2.default.createElement(_reactNative.View, { style: { width: 2500, height: 3, backgroundColor: '#ff0037' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 679
+            }
+          }),
+          _react2.default.createElement(
+            _reactNative.ScrollView,
+            { style: { paddingLeft: 5, paddingRight: 5 }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 682
+              }
+            },
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 683
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 35, backgroundColor: _names.brightColor[Math.floor((params && params.postContent.length / 10) + params.passNameID * 2)], borderTopLeftRadius: 7, borderTopRightRadius: 7, paddingTop: 5, paddingLeft: 5, flexDirection: 'row' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 684
+                }
+              },
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontWeight: 'bold', fontSize: 18, color: '#ffffff' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 685
+                  }
+                },
+                _names.animalNames[Math.floor(params && params.postContent.length / 10 + params.passNameID * 2)]
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 8, height: 1, backgroundColor: _names.brightColor[Math.floor((params && params.postContent.length / 10) + params.passNameID * 2)] }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 688
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: {
+                    fontSize: 18,
+                    color: '#ffffff',
+                    backgroundColor: '#fe8200',
+                    textAlign: 'left',
+                    borderRadius: 5,
+                    fontWeight: 'bold'
+                  }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 689
+                  }
+                },
+                Math.floor(params && params.postContent.length / 30) + 1
+              )
+            ),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { paddingLeft: 10, paddingRight: 10, width: parseInt(this.state.postWidth), height: (params && params.postContent.length / 3) * 2 + 110, backgroundColor: _names.brightColor[Math.floor((params && params.postContent.length / 10) + params.passNameID * 2)], justifyContent: 'center' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 700
+                }
+              },
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontSize: 22, color: '#ffffff', textAlign: 'center', fontFamily: 'JosefinSans-Regular.ttf' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 701
+                  }
+                },
+                params && params.postContent
+              )
+            ),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 40, borderBottomLeftRadius: 7, borderBottomRightRadius: 7, backgroundColor: _names.darkColor[Math.floor((params && params.postContent.length / 10) + params.passNameID * 2)], flexDirection: 'row', paddingLeft: 5 }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 705
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 6, height: 1, backgroundColor: _names.darkColor[Math.floor((params && params.postContent.length / 10) + params.passNameID * 2)] }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 707
+                }
+              }),
+              _react2.default.createElement(_reactNative.Image, { style: { height: 39, width: 39 }, source: require('./CandidtwoImages/comments.png'), __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 708
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 22, color: '#ffffff', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 709
+                  }
+                },
+                this.state.firebaseItems.length
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 20, height: 1, backgroundColor: _names.darkColor[Math.floor((params && params.postContent.length / 10) + params.passNameID * 2)] }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 714
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.TouchableWithoutFeedback,
+                { onPress: function onPress() {
+                    _reactNative.Clipboard.setString(params && params.postContent);
+                  }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 715
+                  }
+                },
+                _react2.default.createElement(_reactNative.Image, { style: { width: 34, height: 34 }, source: require('./CandidtwoImages/copytext.png'), __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 716
+                  }
+                })
+              )
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 720
+              }
+            }),
+            _react2.default.createElement(_reactNative.Button, {
+              style: { justifyContent: 'center' },
+              onPress: function onPress() {
+                _this10.getItems();
+              },
+              title: 'Load/Refresh Comments!',
+              color: '#2d1aff',
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 722
+              }
+            }),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 731
+              }
+            }),
+            _react2.default.createElement(_reactNative.FlatList, { data: this.state.firebaseItems,
+              renderItem: this.renderRow, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 732
+              }
+            }),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 500, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 734
+              }
+            }),
+            _react2.default.createElement(_reactNative.Button, {
+              onPress: function onPress() {
+                if (_names.expoID == _this10.state.passUserID) {
+                  _this10.deletePost();
+                  _reactNative.Alert.alert("Post deleted!");
+                } else {
+                  _reactNative.Alert.alert("Error: You are not OP");
+                }
+              },
+              title: 'Delete this post',
+              color: 'red',
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 735
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 747
+                }
+              },
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontSize: 22, color: '#e8e8e8', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 748
+                  }
+                },
+                'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+              )
+            )
+          )
+        ) : null
+      );
+    }
+  }]);
+  return Comments;
+}(_react2.default.Component);
+
+var Notifications = (_temp3 = _class3 = function (_React$Component3) {
+  babelHelpers.inherits(Notifications, _React$Component3);
+
+  function Notifications() {
+    var _ref3;
+
+    var _temp2, _this11, _ret;
+
+    babelHelpers.classCallCheck(this, Notifications);
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    return _ret = (_temp2 = (_this11 = babelHelpers.possibleConstructorReturn(this, (_ref3 = Notifications.__proto__ || Object.getPrototypeOf(Notifications)).call.apply(_ref3, [this].concat(args))), _this11), _this11.state = { fontLoaded: false }, _temp2), babelHelpers.possibleConstructorReturn(_this11, _ret);
+  }
+
+  babelHelpers.createClass(Notifications, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      return regeneratorRuntime.async(function componentDidMount$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              _context2.next = 2;
+              return regeneratorRuntime.awrap(_expo.Font.loadAsync({
+                'JosefinSans-Regular.ttf': require('./JosefinSans-Regular.ttf')
+              }));
+
+            case 2:
+
+              this.setState({ fontLoaded: true });
+
+            case 3:
+            case 'end':
+              return _context2.stop();
+          }
+        }
+      }, null, this);
+    }
+  }, {
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      this.getItems();
+    }
+  }, {
+    key: 'getItems',
+    value: function getItems() {
+      var _this12 = this;
+
+      var query = firebase.database().ref('users/' + _names.expoID + '/notifications').orderByKey();
+
+      query.once('value', function (snap) {
+
+        var items = [];
+
+        snap.forEach(function (child) {
+          items.push({
+            content: ' ' + child.val().content,
+            postKey: child.val().okey,
+            color: child.val().color,
+            notifKey: child.key,
+            postContent: child.val().postContent,
+            postUserExpoID: child.val().postUserExpoID,
+            postUserNameID: child.val().postUserNameID,
+            nameNumber: child.val().nameNumber
+          });
+        });
+        items.reverse();
+        _this12.setState({ firebaseItems: items });
+      });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this13 = this;
+
+      return _react2.default.createElement(
+        _reactNative.View,
+        { style: styles.container, __source: {
+            fileName: _jsxFileName,
+            lineNumber: 814
+          }
+        },
+        this.state.fontLoaded ? _react2.default.createElement(
+          _reactNative.View,
+          { style: styles.container, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 816
+            }
+          },
+          _react2.default.createElement(
+            _reactNative.Text,
+            { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, paddingRight: 5, paddingLeft: 5, paddingTop: 3, paddingBottom: 3 }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 817
+              }
+            },
+            'Check all of your notifications to see what people think about your post!'
+          ),
+          _react2.default.createElement(_reactNative.View, { style: { width: 2500, height: 3, backgroundColor: '#ffc800' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 821
+            }
+          }),
+          _react2.default.createElement(_reactNative.View, { style: { width: 2500, height: 3, backgroundColor: '#ff0037' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 822
+            }
+          }),
+          _react2.default.createElement(
+            _reactNative.ScrollView,
+            {
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 825
+              }
+            },
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 826
+              }
+            }),
+            _react2.default.createElement(_reactNative.Button, {
+              style: { justifyContent: 'center' },
+              onPress: function onPress() {
+                _this13.getItems();
+              },
+              title: 'Check for new notifications!',
+              color: '#2d1aff',
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 827
+              }
+            }),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 835
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: this.state.postWidth, backgroundColor: '#2d2d2d', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10, paddingTop: 4, paddingBottom: 4 }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 836
+                }
+              },
+              _react2.default.createElement(
+                _reactNative.View,
+                { style: { width: parseInt(this.state.postWidth), height: this.state.postWidth, backgroundColor: '#2d2d2d', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10, flexDirection: 'row' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 837
+                  }
+                },
+                _react2.default.createElement(_reactNative.Image, { source: require('./CandidtwoImages/starTab.png'), style: { width: 30, height: 30, tintColor: 'white' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 839
+                  }
+                }),
+                _react2.default.createElement(_reactNative.Image, { source: require('./CandidtwoImages/starTab.png'), style: { width: 30, height: 30, tintColor: 'white' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 840
+                  }
+                }),
+                _react2.default.createElement(_reactNative.Image, { source: require('./CandidtwoImages/starTab.png'), style: { width: 30, height: 30, tintColor: 'white' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 841
+                  }
+                }),
+                _react2.default.createElement(_reactNative.Image, { source: require('./CandidtwoImages/starTab.png'), style: { width: 30, height: 30, tintColor: 'white' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 842
+                  }
+                }),
+                _react2.default.createElement(_reactNative.Image, { source: require('./CandidtwoImages/starTab.png'), style: { width: 30, height: 30, tintColor: 'white' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 843
+                  }
+                })
+              ),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 22, color: '#ffffff', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 845
+                  }
+                },
+                'It would really help if google play users gave this app a 5 star review!'
+              ),
+              _react2.default.createElement(
+                _reactNative.View,
+                { style: { width: parseInt(this.state.postWidth), height: this.state.postWidth, backgroundColor: '#2d2d2d', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10, flexDirection: 'row' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 848
+                  }
+                },
+                _react2.default.createElement(_reactNative.Button, {
+                  style: { justifyContent: 'center' },
+                  onPress: function onPress() {
+                    _reactNative.Clipboard.setString('https://play.google.com/store/apps/details?id=com.giise.phoenix');
+                  },
+                  title: 'Copy link',
+                  color: '#A9A9A9',
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 849
+                  }
+                }),
+                _react2.default.createElement(_reactNative.View, { style: { width: 3, height: 1, backgroundColor: '#2d2d2d' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 857
+                  }
+                }),
+                _react2.default.createElement(_reactNative.Button, {
+                  style: { justifyContent: 'center' },
+                  onPress: function onPress() {
+                    Expo.WebBrowser.openBrowserAsync('https://play.google.com/store/apps/details?id=com.giise.phoenix');
+                  },
+                  title: 'Open Play Store',
+                  color: '#A9A9A9',
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 858
+                  }
+                })
+              )
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 868
+              }
+            }),
+            _react2.default.createElement(_reactNative.View, { style: { width: this.state.postWidth, height: 1, backgroundColor: 'grey' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 869
+              }
+            }),
+            _react2.default.createElement(_reactNative.FlatList, {
+              data: this.state.firebaseItems,
+              renderItem: function renderItem(_ref4) {
+                var item = _ref4.item;
+                return _react2.default.createElement(
+                  _reactNative.View,
+                  {
+                    __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 874
+                    }
+                  },
+                  _react2.default.createElement(
+                    _reactNative.View,
+                    { style: { width: parseInt(_this13.state.postWidth), height: _this13.state.postWidth, backgroundColor: item.color, alignItems: 'center', justifyContent: 'center', paddingLeft: 10, paddingRight: 10, flexDirection: 'row' }, __source: {
+                        fileName: _jsxFileName,
+                        lineNumber: 875
+                      }
+                    },
+                    _react2.default.createElement(
+                      _reactNative.TouchableWithoutFeedback,
+                      { onPress: function onPress() {
+                          _this13.props.navigation.navigate('CommentScreen', { postKey: item.postKey, postContent: item.postContent, passNameID: item.postUserNameID, userID: item.postUserExpoID });
+                          firebase.database().ref('users/' + _names.expoID).child(item.notifKey).update({ color: "#e8e8e8" });
+                          _this13.getItems();
+                        }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 876
+                        }
+                      },
+                      _react2.default.createElement(
+                        _reactNative.View,
+                        { style: { width: parseInt(_this13.state.postWidth), height: _this13.state.postWidth, backgroundColor: item.color, alignItems: 'center', justifyContent: 'center', paddingLeft: 50, paddingRight: 10 }, __source: {
+                            fileName: _jsxFileName,
+                            lineNumber: 881
+                          }
+                        },
+                        _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 10, backgroundColor: item.color }, __source: {
+                            fileName: _jsxFileName,
+                            lineNumber: 882
+                          }
+                        }),
+                        _react2.default.createElement(
+                          _reactNative.Text,
+                          { style: { fontWeight: 'bold', fontSize: 18, color: _names.brightColor[item.nameNumber] }, __source: {
+                              fileName: _jsxFileName,
+                              lineNumber: 883
+                            }
+                          },
+                          _names.animalNames[item.nameNumber]
+                        ),
+                        _react2.default.createElement(
+                          _reactNative.Text,
+                          { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 22, color: '#696969' }, __source: {
+                              fileName: _jsxFileName,
+                              lineNumber: 886
+                            }
+                          },
+                          'commented on a post:'
+                        ),
+                        _react2.default.createElement(
+                          _reactNative.Text,
+                          { style: { fontSize: 17 }, numberOfLines: 2, __source: {
+                              fileName: _jsxFileName,
+                              lineNumber: 889
+                            }
+                          },
+                          item.content
+                        ),
+                        _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 10, backgroundColor: item.color }, __source: {
+                            fileName: _jsxFileName,
+                            lineNumber: 892
+                          }
+                        })
+                      )
+                    ),
+                    _react2.default.createElement(
+                      _reactNative.View,
+                      { style: { width: 70, height: _this13.state.postWidth, backgroundColor: item.color, alignItems: 'center', justifyContent: 'center', paddingLeft: 10, paddingRight: 30 }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 895
+                        }
+                      },
+                      _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 3, backgroundColor: item.color }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 896
+                        }
+                      }),
+                      _react2.default.createElement(_reactNative.Image, { source: require('./CandidtwoImages/comments.png'), style: { width: 30, height: 30, tintColor: '#A9A9A9' }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 897
+                        }
+                      }),
+                      _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 27, backgroundColor: item.color }, __source: {
+                          fileName: _jsxFileName,
+                          lineNumber: 898
+                        }
+                      })
+                    )
+                  ),
+                  _react2.default.createElement(_reactNative.View, { style: { width: _this13.state.postWidth, height: 1, backgroundColor: 'grey' }, __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 902
+                    }
+                  })
+                );
+              },
+              __source: {
+                fileName: _jsxFileName,
+                lineNumber: 871
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 15, backgroundColor: '#e8e8e8' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 906
+                }
+              },
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontSize: 22, color: '#e8e8e8', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 907
+                  }
+                },
+                'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+              )
+            )
+          )
+        ) : null
+      );
+    }
+  }]);
+  return Notifications;
+}(_react2.default.Component), _class3.navigationOptions = {
+  tabBarLabel: 'Notifs',
+  tabBarIcon: function tabBarIcon() {
+    return _react2.default.createElement(_reactNative.Image, {
+      source: require('./CandidtwoImages/NotificationIcon.png'),
+      style: [styles.icon, { tintColor: '#A9A9A9' }],
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 768
+      }
+    });
+  }
+}, _temp3);
+var Groups = (_temp5 = _class4 = function (_React$Component4) {
+  babelHelpers.inherits(Groups, _React$Component4);
+
+  function Groups() {
+    var _ref5;
+
+    var _temp4, _this14, _ret2;
+
+    babelHelpers.classCallCheck(this, Groups);
+
+    for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+      args[_key2] = arguments[_key2];
+    }
+
+    return _ret2 = (_temp4 = (_this14 = babelHelpers.possibleConstructorReturn(this, (_ref5 = Groups.__proto__ || Object.getPrototypeOf(Groups)).call.apply(_ref5, [this].concat(args))), _this14), _this14.state = {
+      fontLoaded: false
+    }, _temp4), babelHelpers.possibleConstructorReturn(_this14, _ret2);
+  }
+
+  babelHelpers.createClass(Groups, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      return regeneratorRuntime.async(function componentDidMount$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              _context3.next = 2;
+              return regeneratorRuntime.awrap(_expo.Font.loadAsync({
+                'JosefinSans-Regular.ttf': require('./JosefinSans-Regular.ttf')
+              }));
+
+            case 2:
+
+              this.setState({ fontLoaded: true });
+
+            case 3:
+            case 'end':
+              return _context3.stop();
+          }
+        }
+      }, null, this);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      return _react2.default.createElement(
+        _reactNative.View,
+        { style: styles.container, __source: {
+            fileName: _jsxFileName,
+            lineNumber: 945
+          }
+        },
+        this.state.fontLoaded ? _react2.default.createElement(
+          _reactNative.View,
+          { style: styles.container, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 947
+            }
+          },
+          _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 949
+            }
+          }),
+          _react2.default.createElement(
+            _reactNative.Text,
+            { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 22, color: 'black', textAlign: 'center' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 950
+              }
+            },
+            'Join groups that interest you!'
+          ),
+          _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 953
+            }
+          }),
+          _react2.default.createElement(_reactNative.View, { style: { width: 2500, height: 3, backgroundColor: '#ffc800' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 956
+            }
+          }),
+          _react2.default.createElement(_reactNative.View, { style: { width: 2500, height: 3, backgroundColor: '#ff0037' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 957
+            }
+          }),
+          _react2.default.createElement(
+            _reactNative.ScrollView,
+            { style: { paddingRight: 10, paddingLeft: 10 }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 960
+              }
+            },
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 961
+                }
+              },
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontSize: 22, color: '#e8e8e8', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 962
+                  }
+                },
+                'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+              )
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 972
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 250, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10 }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 973
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 974
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: '#2d2d2d', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 975
+                  }
+                },
+                'Random'
+              ),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#696969', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 978
+                  }
+                },
+                'Anything and everything'
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 40, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 981
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.View,
+                { style: { width: parseInt(this.state.postWidth), height: this.state.postWidth, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10, flexDirection: 'row' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 982
+                  }
+                },
+                _react2.default.createElement(_reactNative.Button, {
+                  style: { justifyContent: 'center' },
+                  onPress: function onPress() {
+                    firebase.database().ref('users/' + _names.expoID + '/groups/random').update({ joined: 'false' });
+                  },
+                  title: '   Skip   ',
+                  color: '#2d2d2d',
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 983
+                  }
+                }),
+                _react2.default.createElement(_reactNative.View, { style: { width: 60, height: 1, backgroundColor: 'white' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 991
+                  }
+                }),
+                _react2.default.createElement(_reactNative.Button, {
+                  style: { justifyContent: 'center' },
+                  onPress: function onPress() {
+                    firebase.database().ref('users/' + _names.expoID + '/groups/random').update({ joined: 'true' });
+                  },
+                  title: '   Join   ',
+                  color: '#f7961d',
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 992
+                  }
+                })
+              )
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1004
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 250, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10 }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1005
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1006
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: 'yellow', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1007
+                  }
+                },
+                'The Anime Man'
+              ),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#696969', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1010
+                  }
+                },
+                'Memes and Anime I dunno'
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 40, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1013
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.View,
+                { style: { width: parseInt(this.state.postWidth), height: this.state.postWidth, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10, flexDirection: 'row' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1014
+                  }
+                },
+                _react2.default.createElement(_reactNative.Button, {
+                  style: { justifyContent: 'center' },
+                  onPress: function onPress() {
+                    firebase.database().ref('users/' + _names.expoID + '/groups/The Anime Man').update({ joined: 'false' });
+                  },
+                  title: '   Skip   ',
+                  color: '#2d2d2d',
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1015
+                  }
+                }),
+                _react2.default.createElement(_reactNative.View, { style: { width: 60, height: 1, backgroundColor: 'white' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1023
+                  }
+                }),
+                _react2.default.createElement(_reactNative.Button, {
+                  style: { justifyContent: 'center' },
+                  onPress: function onPress() {
+                    firebase.database().ref('users/' + _names.expoID + '/groups/The Anime Man').update({ joined: 'true' });
+                  },
+                  title: '   Join   ',
+                  color: '#f7961d',
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1024
+                  }
+                })
+              )
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1038
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 250, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10 }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1039
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1040
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.View,
+                { style: { flexDirection: 'row', height: 40, width: 60 }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1041
+                  }
+                },
+                _react2.default.createElement(
+                  _reactNative.Text,
+                  { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: 'red', textAlign: 'center' }, __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1042
+                    }
+                  },
+                  'L'
+                ),
+                _react2.default.createElement(
+                  _reactNative.Text,
+                  { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: 'orange', textAlign: 'center' }, __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1045
+                    }
+                  },
+                  'G'
+                ),
+                _react2.default.createElement(
+                  _reactNative.Text,
+                  { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: 'blue', textAlign: 'center' }, __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1048
+                    }
+                  },
+                  'B'
+                ),
+                _react2.default.createElement(
+                  _reactNative.Text,
+                  { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: 'green', textAlign: 'center' }, __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1051
+                    }
+                  },
+                  'T'
+                )
+              ),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#696969', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1055
+                  }
+                },
+                'Discuss anything about the LGBT. Everyone is welcome!'
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 40, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1058
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.View,
+                { style: { width: parseInt(this.state.postWidth), height: this.state.postWidth, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10, flexDirection: 'row' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1059
+                  }
+                },
+                _react2.default.createElement(_reactNative.Button, {
+                  style: { justifyContent: 'center' },
+                  onPress: function onPress() {
+                    firebase.database().ref('users/' + _names.expoID + '/groups/LGBT').update({ joined: 'false' });
+                  },
+                  title: '   Skip   ',
+                  color: '#2d2d2d',
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1060
+                  }
+                }),
+                _react2.default.createElement(_reactNative.View, { style: { width: 60, height: 1, backgroundColor: 'white' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1068
+                  }
+                }),
+                _react2.default.createElement(_reactNative.Button, {
+                  style: { justifyContent: 'center' },
+                  onPress: function onPress() {
+                    firebase.database().ref('users/' + _names.expoID + '/groups/LGBT').update({ joined: 'true' });
+                  },
+                  title: '   Join   ',
+                  color: '#f7961d',
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1069
+                  }
+                })
+              )
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1080
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 250, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10 }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1081
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1082
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: 'red', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1083
+                  }
+                },
+                'pol'
+              ),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#696969', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1086
+                  }
+                },
+                'The place to say ANYTHING you want.'
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 40, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1089
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.View,
+                { style: { width: parseInt(this.state.postWidth), height: this.state.postWidth, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10, flexDirection: 'row' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1090
+                  }
+                },
+                _react2.default.createElement(_reactNative.Button, {
+                  style: { justifyContent: 'center' },
+                  onPress: function onPress() {
+                    firebase.database().ref('users/' + _names.expoID + '/groups/pol').update({ joined: 'false' });
+                  },
+                  title: '   Skip   ',
+                  color: '#2d2d2d',
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1091
+                  }
+                }),
+                _react2.default.createElement(_reactNative.View, { style: { width: 60, height: 1, backgroundColor: 'white' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1099
+                  }
+                }),
+                _react2.default.createElement(_reactNative.Button, {
+                  style: { justifyContent: 'center' },
+                  onPress: function onPress() {
+                    firebase.database().ref('users/' + _names.expoID + '/groups/pol').update({ joined: 'true' });
+                  },
+                  title: '   Join   ',
+                  color: '#f7961d',
+                  __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1100
+                  }
+                })
+              )
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1114
+              }
+            })
+          )
+        ) : null
+      );
+    }
+  }]);
+  return Groups;
+}(_react2.default.Component), _class4.navigationOptions = {
+  tabBarLabel: 'Groups',
+  tabBarIcon: function tabBarIcon() {
+    return _react2.default.createElement(_reactNative.Image, {
+      source: require('./CandidtwoImages/starTab.png'),
+      style: [styles.icon, { tintColor: '#A9A9A9' }],
+      __source: {
+        fileName: _jsxFileName,
+        lineNumber: 923
+      }
+    });
+  }
+}, _temp5);
+
+var PostScreen = function (_React$Component5) {
+  babelHelpers.inherits(PostScreen, _React$Component5);
+
+  function PostScreen(props) {
+    babelHelpers.classCallCheck(this, PostScreen);
+
+    var _this15 = babelHelpers.possibleConstructorReturn(this, (PostScreen.__proto__ || Object.getPrototypeOf(PostScreen)).call(this, props));
+
+    _this15.state = {
+      fontLoaded: false
+    };
+
+    _this15.state = { postInput: "" };
+    return _this15;
+  }
+
+  babelHelpers.createClass(PostScreen, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      return regeneratorRuntime.async(function componentDidMount$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              _context4.next = 2;
+              return regeneratorRuntime.awrap(_expo.Font.loadAsync({
+                'JosefinSans-Regular.ttf': require('./JosefinSans-Regular.ttf')
+              }));
+
+            case 2:
+              this.setState({ group: 'random' });
+              this.setState({ fontLoaded: true });
+
+            case 4:
+            case 'end':
+              return _context4.stop();
+          }
+        }
+      }, null, this);
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _this16 = this;
+
+      return _react2.default.createElement(
+        _reactNative.View,
+        { style: styles.postcontainer, __source: {
+            fileName: _jsxFileName,
+            lineNumber: 1144
+          }
+        },
+        this.state.fontLoaded ? _react2.default.createElement(
+          _reactNative.View,
+          { style: styles.postcontainer, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 1145
+            }
+          },
+          _react2.default.createElement(_reactNative.View, { style: { height: 6, width: 1 }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 1146
+            }
+          }),
+          _react2.default.createElement(_reactNative.View, { style: { width: 5, height: 2, backgroundColor: '#ffffff' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 1147
+            }
+          }),
+          _react2.default.createElement(_reactNative.TextInput, {
+            style: { height: 150, width: this.state.postWidth, borderColor: '#e8e8e8', borderWidth: 2, borderRadius: 7, paddingRight: 7, paddingLeft: 7, backgroundColor: '#f9f9f9' },
+            onChangeText: function onChangeText(postInput) {
+              return _this16.setState({ postInput: postInput });
+            },
+            value: this.state.postInput,
+            onSubmitEditing: _reactNative.Keyboard.dismiss,
+            autoCorrect: true,
+            underlineColorAndroid: '#f9f9f9',
+            autoCapitalize: 'sentences',
+            placeholder: "What's on your mind?",
+            placeholderTextColor: '#D3D3D3',
+            autoFocus: true,
+            multiline: true,
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 1148
+            }
+          }),
+          _react2.default.createElement(
+            _reactNative.View,
+            { style: { width: parseInt(this.state.postWidth), height: 8, backgroundColor: '#ffffff' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1161
+              }
+            },
+            _react2.default.createElement(
+              _reactNative.Text,
+              { style: { fontSize: 22, color: '#ffffff', textAlign: 'center' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1162
+                }
+              },
+              'ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo'
+            )
+          ),
+          _react2.default.createElement(_reactNative.Button, {
+            style: { justifyContent: 'center' },
+            onPress: function onPress() {
+              _reactNative.Keyboard.dismiss();
+              if (_this16.state.postInput.length > 0) {
+                if (1001 > _this16.state.postInput.length) {
+                  firebase.database().ref('posts').push().set({ content: _this16.state.postInput, userNameId: _names.expoNameIDConst, userID: _names.expoID, newestComment: ' ', comments: 0, likes: 0, dislikes: 0, group: _this16.state.group });
+                  _this16.setState({ postInput: '' });
+                  _reactNative.Alert.alert("Post uploaded");
+                } else {
+                  _reactNative.Alert.alert("Please keep your post to a max of 1000 characters.");
+                }
+              } else {
+                _reactNative.Alert.alert("Add some content before you post please.");
+              }
+            },
+            title: '                  +                  ',
+            color: '#f7961d',
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 1166
+            }
+          }),
+          _react2.default.createElement(_reactNative.View, { style: { height: 6, width: 1 }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 1188
+            }
+          }),
+          _react2.default.createElement(
+            _reactNative.View,
+            { style: { height: 20, width: 400, flexDirection: 'row' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1189
+              }
+            },
+            _react2.default.createElement(
+              _reactNative.Text,
+              { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#f7961d' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1190
+                }
+              },
+              'Group selected: ',
+              ' '
+            ),
+            _react2.default.createElement(
+              _reactNative.Text,
+              { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#2d2d2d' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1193
+                }
+              },
+              this.state.group
+            )
+          ),
+          _react2.default.createElement(_reactNative.View, { style: { height: 6, width: 1 }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 1198
+            }
+          }),
+          _react2.default.createElement(_reactNative.View, { style: { width: this.state.postWidth, height: 3, backgroundColor: '#ffc800' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 1200
+            }
+          }),
+          _react2.default.createElement(_reactNative.View, { style: { width: this.state.postWidth, height: 3, backgroundColor: '#ff0037' }, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 1201
+            }
+          }),
+          _react2.default.createElement(
+            _reactNative.ScrollView,
+            { style: { paddingRight: 10, paddingLeft: 10, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1203
+              }
+            },
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1205
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.Text,
+              { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 24, color: 'black' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1206
+                }
+              },
+              'Select a group:'
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1209
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 175, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10 }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1210
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1211
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: '#2d2d2d', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1212
+                  }
+                },
+                'Random'
+              ),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#696969', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1215
+                  }
+                },
+                'Anything and everything'
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 20, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1218
+                }
+              }),
+              _react2.default.createElement(_reactNative.Button, {
+                style: { justifyContent: 'center' },
+                onPress: function onPress() {
+                  _this16.setState({ group: 'random' });
+                },
+                title: '  Select  ',
+                color: '#f7961d',
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1220
+                }
+              })
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1232
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 175, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10 }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1233
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1234
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: 'yellow', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1235
+                  }
+                },
+                'The Anime Man'
+              ),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#696969', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1238
+                  }
+                },
+                'Memes and Anime I dunno'
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 20, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1241
+                }
+              }),
+              _react2.default.createElement(_reactNative.Button, {
+                style: { justifyContent: 'center' },
+                onPress: function onPress() {
+                  _this16.setState({ group: 'The Anime Man' });
+                },
+                title: '  Select  ',
+                color: '#f7961d',
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1242
+                }
+              })
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1255
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 175, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10 }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1256
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1257
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.View,
+                { style: { flexDirection: 'row', height: 40, width: 60 }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1258
+                  }
+                },
+                _react2.default.createElement(
+                  _reactNative.Text,
+                  { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: 'red', textAlign: 'center' }, __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1259
+                    }
+                  },
+                  'L'
+                ),
+                _react2.default.createElement(
+                  _reactNative.Text,
+                  { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: 'orange', textAlign: 'center' }, __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1262
+                    }
+                  },
+                  'G'
+                ),
+                _react2.default.createElement(
+                  _reactNative.Text,
+                  { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: 'blue', textAlign: 'center' }, __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1265
+                    }
+                  },
+                  'B'
+                ),
+                _react2.default.createElement(
+                  _reactNative.Text,
+                  { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: 'green', textAlign: 'center' }, __source: {
+                      fileName: _jsxFileName,
+                      lineNumber: 1268
+                    }
+                  },
+                  'T'
+                )
+              ),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#696969', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1272
+                  }
+                },
+                'Discuss anything about the LGBT. Everyone is welcome!'
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 20, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1275
+                }
+              }),
+              _react2.default.createElement(_reactNative.Button, {
+                style: { justifyContent: 'center' },
+                onPress: function onPress() {
+                  _this16.setState({ group: 'LGBT' });
+                },
+                title: '  Select  ',
+                color: '#f7961d',
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1276
+                }
+              })
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1286
+              }
+            }),
+            _react2.default.createElement(
+              _reactNative.View,
+              { style: { width: parseInt(this.state.postWidth), height: 175, backgroundColor: '#ffffff', alignItems: 'center', justifyContent: 'center', borderRadius: 10, paddingLeft: 10, paddingRight: 10 }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1287
+                }
+              },
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1288
+                }
+              }),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 26, color: 'red', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1289
+                  }
+                },
+                'pol'
+              ),
+              _react2.default.createElement(
+                _reactNative.Text,
+                { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 20, color: '#696969', textAlign: 'center' }, __source: {
+                    fileName: _jsxFileName,
+                    lineNumber: 1292
+                  }
+                },
+                'The place to say ANYTHING you want.'
+              ),
+              _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 20, backgroundColor: 'white' }, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1295
+                }
+              }),
+              _react2.default.createElement(_reactNative.Button, {
+                style: { justifyContent: 'center' },
+                onPress: function onPress() {
+                  _this16.setState({ group: 'pol' });
+                },
+                title: '  Select  ',
+                color: '#f7961d',
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 1296
+                }
+              })
+            ),
+            _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 6, backgroundColor: '#e8e8e8' }, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 1306
+              }
+            })
+          )
+        ) : null
+      );
+    }
+  }]);
+  return PostScreen;
+}(_react2.default.Component);
+
+var styles = _reactNative.StyleSheet.create({
+  container: {
+    flex: 10000,
+    backgroundColor: '#e8e8e8',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  postcontainer: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+    paddingRight: 10,
+    paddingLeft: 10
+
+  },
+  button: {
+    flex: 1,
+    backgroundColor: '#e8e8e8',
+    alignItems: 'center',
+    justifyContent: 'center'
+
+  },
+  icon: {
+    width: 27,
+    height: 27
+  }
+
+});
+
+var Tabs = (0, _reactNavigation.TabNavigator)({
+  Feed: {
+    screen: FeedView
+  },
+  Groups: {
+    screen: Groups
+  },
+  Notifs: {
+    screen: Notifications
+  }
+
+}, {
+  tabBarPosition: 'bottom',
+  animationEnabled: false,
+  tabBarOptions: {
+    activeTintColor: '#fe8200',
+    inactiveTintColor: '#A9A9A9',
+    activeBackgroundColor: '#DCDCDC',
+    inactiveBackgroundColor: '#ffffff',
+    showIcon: 'true',
+    showLabel: 'false'
+  },
+  tabBarOptions: {
+    showIcon: 'true',
+    style: {
+      backgroundColor: 'white'
+    },
+    tabStyle: {
+      height: 53
+    },
+    labelStyle: {
+      fontSize: 14,
+      color: 'grey'
+    },
+    iconStyle: {
+      showIcon: 'true'
+    },
+    indicatorStyle: {
+      backgroundColor: '#fe8200'
+    }
+  }
+});
+
+var MyApp = (0, _reactNavigation.StackNavigator)({
+  Tabs: {
+    screen: Tabs
+  },
+  CommentScreen: {
+    screen: Comments
+  },
+  Post: {
+    screen: PostScreen
+  }
+});
+
+exports.default = MyApp;

@@ -1,0 +1,20 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+var type = require("./type");
+
+function jsonObjectOrNull(s) {
+    var obj;
+    try {
+        obj = JSON.parse(s);
+    } catch (e) {
+        return null;
+    }
+    if (type.isNonArrayObject(obj)) {
+        return obj;
+    } else {
+        return null;
+    }
+}
+exports.jsonObjectOrNull = jsonObjectOrNull;

@@ -1,0 +1,21 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var RequestInfo = function () {
+    function RequestInfo(url, method, handler, timeout) {
+        this.url = url;
+        this.method = method;
+        this.handler = handler;
+        this.timeout = timeout;
+        this.urlParams = {};
+        this.headers = {};
+        this.body = null;
+        this.errorHandler = null;
+
+        this.progressCallback = null;
+        this.successCodes = [200];
+        this.additionalRetryCodes = [];
+    }
+    return RequestInfo;
+}();
+exports.RequestInfo = RequestInfo;

@@ -1,0 +1,136 @@
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _react2 = require('react');
+
+var _react3 = _interopRequireDefault(_react2);
+
+var _index = require('./../../react-transform-hmr/lib/index.js');
+
+var _index2 = _interopRequireDefault(_index);
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _reactNative = require('react-native');
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var _components = {
+  PublisherBanner: {
+    displayName: 'PublisherBanner'
+  }
+};
+
+var _reactTransformHmrLibIndexJs2 = (0, _index2.default)({
+  filename: '/home/giise/candidtwo/node_modules/expo/src/RNPublisherBanner.js',
+  components: _components,
+  locals: [module],
+  imports: [_react3.default]
+});
+
+function _wrapComponent(id) {
+  return function (Component) {
+    return _reactTransformHmrLibIndexJs2(Component, id);
+  };
+}
+
+var RNBanner = (0, _reactNative.requireNativeComponent)('RNAdMobDFP', PublisherBanner);
+
+var PublisherBanner = _wrapComponent('PublisherBanner')(function (_React$Component) {
+  _inherits(PublisherBanner, _React$Component);
+
+  function PublisherBanner() {
+    _classCallCheck(this, PublisherBanner);
+
+    var _this = _possibleConstructorReturn(this, (PublisherBanner.__proto__ || Object.getPrototypeOf(PublisherBanner)).call(this));
+
+    _this.onSizeChange = _this.onSizeChange.bind(_this);
+    _this.state = {
+      style: {}
+    };
+    return _this;
+  }
+
+  _createClass(PublisherBanner, [{
+    key: 'onSizeChange',
+    value: function onSizeChange(event) {
+      var _event$nativeEvent = event.nativeEvent,
+          height = _event$nativeEvent.height,
+          width = _event$nativeEvent.width;
+
+      this.setState({ style: { width: width, height: height } });
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          adUnitID = _props.adUnitID,
+          testDeviceID = _props.testDeviceID,
+          bannerSize = _props.bannerSize,
+          style = _props.style,
+          didFailToReceiveAdWithError = _props.didFailToReceiveAdWithError,
+          admobDispatchAppEvent = _props.admobDispatchAppEvent;
+
+      return _react3.default.createElement(
+        _reactNative.View,
+        { style: this.props.style },
+        _react3.default.createElement(RNBanner, {
+          style: this.state.style,
+          onSizeChange: this.onSizeChange.bind(this),
+          onAdViewDidReceiveAd: this.props.adViewDidReceiveAd,
+          onDidFailToReceiveAdWithError: function onDidFailToReceiveAdWithError(event) {
+            return didFailToReceiveAdWithError(event.nativeEvent.error);
+          },
+          onAdViewWillPresentScreen: this.props.adViewWillPresentScreen,
+          onAdViewWillDismissScreen: this.props.adViewWillDismissScreen,
+          onAdViewDidDismissScreen: this.props.adViewDidDismissScreen,
+          onAdViewWillLeaveApplication: this.props.adViewWillLeaveApplication,
+          onAdmobDispatchAppEvent: function onAdmobDispatchAppEvent(event) {
+            return admobDispatchAppEvent(event);
+          },
+          testDeviceID: testDeviceID,
+          adUnitID: adUnitID,
+          bannerSize: bannerSize
+        })
+      );
+    }
+  }]);
+
+  return PublisherBanner;
+}(_react3.default.Component));
+
+exports.default = PublisherBanner;
+
+
+PublisherBanner.propTypes = _extends({
+  style: _reactNative.View.propTypes.style,
+
+  bannerSize: _react3.default.PropTypes.string,
+
+  adUnitID: _react3.default.PropTypes.string,
+
+  testDeviceID: _react3.default.PropTypes.string,
+
+  adViewDidReceiveAd: _react3.default.PropTypes.func,
+  didFailToReceiveAdWithError: _react3.default.PropTypes.func,
+  adViewWillPresentScreen: _react3.default.PropTypes.func,
+  adViewWillDismissScreen: _react3.default.PropTypes.func,
+  adViewDidDismissScreen: _react3.default.PropTypes.func,
+  adViewWillLeaveApplication: _react3.default.PropTypes.func,
+  admobDispatchAppEvent: _react3.default.PropTypes.func
+}, _reactNative.View.propTypes);
+
+PublisherBanner.defaultProps = {
+  bannerSize: 'smartBannerPortrait',
+  didFailToReceiveAdWithError: function didFailToReceiveAdWithError() {},
+  admobDispatchAppEvent: function admobDispatchAppEvent() {}
+};

@@ -1,0 +1,18 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var ChildrenNode_1 = require("./snap/ChildrenNode");
+
+var SnapshotHolder = function () {
+    function SnapshotHolder() {
+        this.rootNode_ = ChildrenNode_1.ChildrenNode.EMPTY_NODE;
+    }
+    SnapshotHolder.prototype.getNode = function (path) {
+        return this.rootNode_.getChild(path);
+    };
+    SnapshotHolder.prototype.updateSnapshot = function (path, newSnapshotNode) {
+        this.rootNode_ = this.rootNode_.updateChild(path, newSnapshotNode);
+    };
+    return SnapshotHolder;
+}();
+exports.SnapshotHolder = SnapshotHolder;

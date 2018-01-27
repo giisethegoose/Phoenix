@@ -1,0 +1,174 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+var app_1 = require("@firebase/app");
+var array = require("./array");
+var backoff = require("./backoff");
+var errorsExports = require("./error");
+var object = require("./object");
+var promiseimpl = require("./promise_external");
+var type = require("./type");
+var UrlUtils = require("./url");
+var XhrIoExports = require("./xhrio");
+
+var NetworkRequest = function () {
+    function NetworkRequest(url, method, headers, body, successCodes, additionalRetryCodes, callback, errorCallback, timeout, progressCallback, pool) {
+        this.pendingXhr_ = null;
+        this.backoffId_ = null;
+        this.resolve_ = null;
+        this.reject_ = null;
+        this.canceled_ = false;
+        this.appDelete_ = false;
+        this.url_ = url;
+        this.method_ = method;
+        this.headers_ = headers;
+        this.body_ = body;
+        this.successCodes_ = successCodes.slice();
+        this.additionalRetryCodes_ = additionalRetryCodes.slice();
+        this.callback_ = callback;
+        this.errorCallback_ = errorCallback;
+        this.progressCallback_ = progressCallback;
+        this.timeout_ = timeout;
+        this.pool_ = pool;
+        var self = this;
+        this.promise_ = promiseimpl.make(function (resolve, reject) {
+            self.resolve_ = resolve;
+            self.reject_ = reject;
+            self.start_();
+        });
+    }
+
+    NetworkRequest.prototype.start_ = function () {
+        var self = this;
+        function doTheRequest(backoffCallback, canceled) {
+            if (canceled) {
+                backoffCallback(false, new RequestEndStatus(false, null, true));
+                return;
+            }
+            var xhr = self.pool_.createXhrIo();
+            self.pendingXhr_ = xhr;
+            function progressListener(progressEvent) {
+                var loaded = progressEvent.loaded;
+                var total = progressEvent.lengthComputable ? progressEvent.total : -1;
+                if (self.progressCallback_ !== null) {
+                    self.progressCallback_(loaded, total);
+                }
+            }
+            if (self.progressCallback_ !== null) {
+                xhr.addUploadProgressListener(progressListener);
+            }
+            xhr.send(self.url_, self.method_, self.body_, self.headers_).then(function (xhr) {
+                if (self.progressCallback_ !== null) {
+                    xhr.removeUploadProgressListener(progressListener);
+                }
+                self.pendingXhr_ = null;
+                xhr = xhr;
+                var hitServer = xhr.getErrorCode() === XhrIoExports.ErrorCode.NO_ERROR;
+                var status = xhr.getStatus();
+                if (!hitServer || self.isRetryStatusCode_(status)) {
+                    var wasCanceled = xhr.getErrorCode() === XhrIoExports.ErrorCode.ABORT;
+                    backoffCallback(false, new RequestEndStatus(false, null, wasCanceled));
+                    return;
+                }
+                var successCode = array.contains(self.successCodes_, status);
+                backoffCallback(true, new RequestEndStatus(successCode, xhr));
+            });
+        }
+
+        function backoffDone(requestWentThrough, status) {
+            var resolve = self.resolve_;
+            var reject = self.reject_;
+            var xhr = status.xhr;
+            if (status.wasSuccessCode) {
+                try {
+                    var result = self.callback_(xhr, xhr.getResponseText());
+                    if (type.isJustDef(result)) {
+                        resolve(result);
+                    } else {
+                        resolve();
+                    }
+                } catch (e) {
+                    reject(e);
+                }
+            } else {
+                if (xhr !== null) {
+                    var err = errorsExports.unknown();
+                    err.setServerResponseProp(xhr.getResponseText());
+                    if (self.errorCallback_) {
+                        reject(self.errorCallback_(xhr, err));
+                    } else {
+                        reject(err);
+                    }
+                } else {
+                    if (status.canceled) {
+                        var err = self.appDelete_ ? errorsExports.appDeleted() : errorsExports.canceled();
+                        reject(err);
+                    } else {
+                        var err = errorsExports.retryLimitExceeded();
+                        reject(err);
+                    }
+                }
+            }
+        }
+        if (this.canceled_) {
+            backoffDone(false, new RequestEndStatus(false, null, true));
+        } else {
+            this.backoffId_ = backoff.start(doTheRequest, backoffDone, this.timeout_);
+        }
+    };
+
+    NetworkRequest.prototype.getPromise = function () {
+        return this.promise_;
+    };
+
+    NetworkRequest.prototype.cancel = function (appDelete) {
+        this.canceled_ = true;
+        this.appDelete_ = appDelete || false;
+        if (this.backoffId_ !== null) {
+            backoff.stop(this.backoffId_);
+        }
+        if (this.pendingXhr_ !== null) {
+            this.pendingXhr_.abort();
+        }
+    };
+    NetworkRequest.prototype.isRetryStatusCode_ = function (status) {
+        var isFiveHundredCode = status >= 500 && status < 600;
+        var extraRetryCodes = [408, 429];
+        var isExtraRetryCode = array.contains(extraRetryCodes, status);
+        var isRequestSpecificRetryCode = array.contains(this.additionalRetryCodes_, status);
+        return isFiveHundredCode || isExtraRetryCode || isRequestSpecificRetryCode;
+    };
+    return NetworkRequest;
+}();
+
+var RequestEndStatus = function () {
+    function RequestEndStatus(wasSuccessCode, xhr, opt_canceled) {
+        this.wasSuccessCode = wasSuccessCode;
+        this.xhr = xhr;
+        this.canceled = !!opt_canceled;
+    }
+    return RequestEndStatus;
+}();
+exports.RequestEndStatus = RequestEndStatus;
+function addAuthHeader_(headers, authToken) {
+    if (authToken !== null && authToken.length > 0) {
+        headers['Authorization'] = 'Firebase ' + authToken;
+    }
+}
+exports.addAuthHeader_ = addAuthHeader_;
+function addVersionHeader_(headers) {
+    var number = typeof app_1.default !== 'undefined' ? app_1.default.SDK_VERSION : 'AppManager';
+    headers['X-Firebase-Storage-Version'] = 'webjs/' + number;
+}
+exports.addVersionHeader_ = addVersionHeader_;
+
+function makeRequest(requestInfo, authToken, pool) {
+    var queryPart = UrlUtils.makeQueryString(requestInfo.urlParams);
+    var url = requestInfo.url + queryPart;
+    var headers = object.clone(requestInfo.headers);
+    addAuthHeader_(headers, authToken);
+    addVersionHeader_(headers);
+    return new NetworkRequest(url, requestInfo.method, headers, requestInfo.body, requestInfo.successCodes, requestInfo.additionalRetryCodes, requestInfo.handler, requestInfo.errorHandler, requestInfo.timeout, requestInfo.progressCallback, pool);
+}
+exports.makeRequest = makeRequest;

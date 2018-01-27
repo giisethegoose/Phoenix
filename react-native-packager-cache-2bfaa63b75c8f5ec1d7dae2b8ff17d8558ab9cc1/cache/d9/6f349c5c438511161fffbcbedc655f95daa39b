@@ -1,0 +1,166 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+var args = require("./implementation/args");
+var blob_1 = require("./implementation/blob");
+var errorsExports = require("./implementation/error");
+var location_1 = require("./implementation/location");
+var metadata = require("./implementation/metadata");
+var object = require("./implementation/object");
+var path = require("./implementation/path");
+var requests = require("./implementation/requests");
+var fbsString = require("./implementation/string");
+var string_1 = require("./implementation/string");
+var type = require("./implementation/type");
+var task_1 = require("./task");
+
+var Reference = function () {
+    function Reference(authWrapper, location) {
+        this.authWrapper = authWrapper;
+        if (location instanceof location_1.Location) {
+            this.location = location;
+        } else {
+            this.location = location_1.Location.makeFromUrl(location);
+        }
+    }
+
+    Reference.prototype.toString = function () {
+        args.validate('toString', [], arguments);
+        return 'gs://' + this.location.bucket + '/' + this.location.path;
+    };
+    Reference.prototype.newRef = function (authWrapper, location) {
+        return new Reference(authWrapper, location);
+    };
+    Reference.prototype.mappings = function () {
+        return metadata.getMappings();
+    };
+
+    Reference.prototype.child = function (childPath) {
+        args.validate('child', [args.stringSpec()], arguments);
+        var newPath = path.child(this.location.path, childPath);
+        var location = new location_1.Location(this.location.bucket, newPath);
+        return this.newRef(this.authWrapper, location);
+    };
+    Object.defineProperty(Reference.prototype, "parent", {
+        get: function get() {
+            var newPath = path.parent(this.location.path);
+            if (newPath === null) {
+                return null;
+            }
+            var location = new location_1.Location(this.location.bucket, newPath);
+            return this.newRef(this.authWrapper, location);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Reference.prototype, "root", {
+        get: function get() {
+            var location = new location_1.Location(this.location.bucket, '');
+            return this.newRef(this.authWrapper, location);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Reference.prototype, "bucket", {
+        get: function get() {
+            return this.location.bucket;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Reference.prototype, "fullPath", {
+        get: function get() {
+            return this.location.path;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Reference.prototype, "name", {
+        get: function get() {
+            return path.lastComponent(this.location.path);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Reference.prototype, "storage", {
+        get: function get() {
+            return this.authWrapper.service();
+        },
+        enumerable: true,
+        configurable: true
+    });
+
+    Reference.prototype.put = function (data, metadata) {
+        if (metadata === void 0) {
+            metadata = null;
+        }
+        args.validate('put', [args.uploadDataSpec(), args.metadataSpec(true)], arguments);
+        this.throwIfRoot_('put');
+        return new task_1.UploadTask(this, this.authWrapper, this.location, this.mappings(), new blob_1.FbsBlob(data), metadata);
+    };
+
+    Reference.prototype.putString = function (string, format, opt_metadata) {
+        if (format === void 0) {
+            format = string_1.StringFormat.RAW;
+        }
+        args.validate('putString', [args.stringSpec(), args.stringSpec(fbsString.formatValidator, true), args.metadataSpec(true)], arguments);
+        this.throwIfRoot_('putString');
+        var data = fbsString.dataFromString(format, string);
+        var metadata = object.clone(opt_metadata);
+        if (!type.isDef(metadata['contentType']) && type.isDef(data.contentType)) {
+            metadata['contentType'] = data.contentType;
+        }
+        return new task_1.UploadTask(this, this.authWrapper, this.location, this.mappings(), new blob_1.FbsBlob(data.data, true), metadata);
+    };
+
+    Reference.prototype.delete = function () {
+        args.validate('delete', [], arguments);
+        this.throwIfRoot_('delete');
+        var self = this;
+        return this.authWrapper.getAuthToken().then(function (authToken) {
+            var requestInfo = requests.deleteObject(self.authWrapper, self.location);
+            return self.authWrapper.makeRequest(requestInfo, authToken).getPromise();
+        });
+    };
+
+    Reference.prototype.getMetadata = function () {
+        args.validate('getMetadata', [], arguments);
+        this.throwIfRoot_('getMetadata');
+        var self = this;
+        return this.authWrapper.getAuthToken().then(function (authToken) {
+            var requestInfo = requests.getMetadata(self.authWrapper, self.location, self.mappings());
+            return self.authWrapper.makeRequest(requestInfo, authToken).getPromise();
+        });
+    };
+
+    Reference.prototype.updateMetadata = function (metadata) {
+        args.validate('updateMetadata', [args.metadataSpec()], arguments);
+        this.throwIfRoot_('updateMetadata');
+        var self = this;
+        return this.authWrapper.getAuthToken().then(function (authToken) {
+            var requestInfo = requests.updateMetadata(self.authWrapper, self.location, metadata, self.mappings());
+            return self.authWrapper.makeRequest(requestInfo, authToken).getPromise();
+        });
+    };
+
+    Reference.prototype.getDownloadURL = function () {
+        args.validate('getDownloadURL', [], arguments);
+        this.throwIfRoot_('getDownloadURL');
+        return this.getMetadata().then(function (metadata) {
+            var url = metadata['downloadURLs'][0];
+            if (type.isDef(url)) {
+                return url;
+            } else {
+                throw errorsExports.noDownloadURL();
+            }
+        });
+    };
+    Reference.prototype.throwIfRoot_ = function (name) {
+        if (this.location.path === '') {
+            throw errorsExports.invalidRootOperation(name);
+        }
+    };
+    return Reference;
+}();
+exports.Reference = Reference;

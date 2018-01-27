@@ -1,0 +1,1 @@
+["40e7c06e16e8d91318cd59a964e938e3c0b17fc1","a1fb8da7c6894da4c7da50070c9f5e5b6ee98023",[],[],{"version":3,"sources":["/home/giise/candidtwo/constants.js"],"names":["commentkey"],"mappings":";;;AAAO,IAAMA,kCAAa,YAAnB","sourcesContent":["export const commentkey = 'keyexample';\n"]}]

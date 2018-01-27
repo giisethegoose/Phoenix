@@ -1,0 +1,1 @@
+["d2b3481f7053d09899e1429534b3c1d6971b9fe2","bd775511ea1c532dda8e04b3cc30d088d95025da",["@expo/vector-icons"],[93],{"version":3,"sources":["/home/giise/candidtwo/node_modules/expo/src/Icon.js"],"names":[],"mappings":";;;;AAAA","sourcesContent":["import Icon from '@expo/vector-icons';\nexport default Icon;\n"]}]

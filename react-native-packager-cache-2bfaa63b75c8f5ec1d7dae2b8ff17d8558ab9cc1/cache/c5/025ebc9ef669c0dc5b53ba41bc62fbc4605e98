@@ -1,0 +1,32 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var WebSocketConnection_1 = require("../realtime/WebSocketConnection");
+var BrowserPollConnection_1 = require("../realtime/BrowserPollConnection");
+
+exports.forceLongPolling = function () {
+    WebSocketConnection_1.WebSocketConnection.forceDisallow();
+    BrowserPollConnection_1.BrowserPollConnection.forceAllow();
+};
+exports.forceWebSockets = function () {
+    BrowserPollConnection_1.BrowserPollConnection.forceDisallow();
+};
+
+exports.isWebSocketsAvailable = function () {
+    return WebSocketConnection_1.WebSocketConnection['isAvailable']();
+};
+exports.setSecurityDebugCallback = function (ref, callback) {
+    ref.repo.persistentConnection_.securityDebugCallback_ = callback;
+};
+exports.stats = function (ref, showDelta) {
+    ref.repo.stats(showDelta);
+};
+exports.statsIncrementCounter = function (ref, metric) {
+    ref.repo.statsIncrementCounter(metric);
+};
+exports.dataUpdateCount = function (ref) {
+    return ref.repo.dataUpdateCount;
+};
+exports.interceptServerData = function (ref, callback) {
+    return ref.repo.interceptServerData_(callback);
+};
