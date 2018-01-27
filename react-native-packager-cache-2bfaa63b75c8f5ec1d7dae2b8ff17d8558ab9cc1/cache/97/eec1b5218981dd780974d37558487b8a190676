@@ -478,7 +478,7 @@ var FeedView = (_temp = _class = function (_React$Component) {
                       ),
                       _react2.default.createElement(
                         _reactNative.Text,
-                        { style: { fontWeight: 'bold', fontSize: 18, color: '#ffffff' } },
+                        { style: { fontWeight: 'bold', fontSize: 17, color: '#ffffff' } },
                         _names.animalNames[Math.floor(item.content.length / 10 + item.nameID * 2)]
                       ),
                       _react2.default.createElement(_reactNative.View, { style: { width: 2, height: 1, backgroundColor: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)] } }),
@@ -1902,7 +1902,7 @@ var Comments = function (_React$Component2) {
                 ),
                 _react2.default.createElement(
                   _reactNative.Text,
-                  { style: { fontWeight: 'bold', fontSize: 18, color: '#ffffff' } },
+                  { style: { fontWeight: 'bold', fontSize: 17, color: '#ffffff' } },
                   _names.animalNames[Math.floor(params && params.postContent.length / 10 + params.passNameID * 2)]
                 ),
                 _react2.default.createElement(_reactNative.View, { style: { width: 2, height: 1, backgroundColor: _names.brightColor[Math.floor(params && params.postContent.length / 10 + params.passNameID * 2)] } }),
@@ -1938,16 +1938,22 @@ var Comments = function (_React$Component2) {
                   ),
                   _react2.default.createElement(_reactNative.View, { style: { width: 8, height: 1, backgroundColor: _names.brightColor[Math.floor((params && params.postContent.length / 10) + params.passNameID * 2)] } }),
                   _react2.default.createElement(
-                    _reactNative.Text,
-                    { style: {
-                        fontSize: 15,
-                        color: _names.brightColor[Math.floor((params && params.postContent.length / 10) + params.passNameID * 2)],
-                        backgroundColor: '#ffffff',
-                        textAlign: 'left',
-                        borderRadius: 14,
-                        fontWeight: 'bold'
+                    _reactNative.TouchableWithoutFeedback,
+                    { onPress: function onPress() {
+                        _this14.props.navigation.navigate('groupView', { group: _this14.state.group });
                       } },
-                    ' ' + this.state.group + ' '
+                    _react2.default.createElement(
+                      _reactNative.Text,
+                      { style: {
+                          fontSize: 15,
+                          color: _names.brightColor[Math.floor((params && params.postContent.length / 10) + params.passNameID * 2)],
+                          backgroundColor: '#ffffff',
+                          textAlign: 'left',
+                          borderRadius: 14,
+                          fontWeight: 'bold'
+                        } },
+                      ' ' + this.state.group + ' '
+                    )
                   ),
                   _react2.default.createElement(_reactNative.View, { style: { width: 8, height: 1, backgroundColor: _names.brightColor[Math.floor((params && params.postContent.length / 10) + params.passNameID * 2)] } })
                 )
@@ -2826,6 +2832,32 @@ var newGroup = function (_React$Component5) {
   }
 
   babelHelpers.createClass(newGroup, [{
+    key: 'createGroup',
+    value: function createGroup() {
+      _reactNative.Keyboard.dismiss();
+      var groupref = firebase.database().ref('groups').push();
+      if (this.state.name.length != 0 && this.state.des.length != 0 && this.state.name.indexOf(".") === -1) {
+        groupref.set({
+          name: this.state.name,
+          des: this.state.des,
+          users: 0,
+          posts: 0,
+          joined: 'no'
+        });
+        goBack(null);
+      } else {
+        if (this.state.name.length == 0) {
+          _reactNative.Alert.alert("Add a name before creating your group.");
+        }
+        if (this.state.des.length == 0) {
+          _reactNative.Alert.alert("Add a description before creating your group.");
+        }
+        if (this.state.name.indexOf('.') !== -1) {
+          Aler.alert("Please take all periods out of the name.");
+        }
+      }
+    }
+  }, {
     key: 'render',
     value: function render() {
       var _this22 = this;
@@ -2867,25 +2899,7 @@ var newGroup = function (_React$Component5) {
         _react2.default.createElement(_reactNative.Button, {
           style: { justifyContent: 'center' },
           onPress: function onPress() {
-            _reactNative.Keyboard.dismiss();
-            var groupref = firebase.database().ref('groups').push();
-            if (_this22.state.name.length != 0 && _this22.state.des.length != 0) {
-              groupref.set({
-                name: _this22.state.name,
-                des: _this22.state.des,
-                users: 0,
-                posts: 0,
-                joined: 'no'
-              });
-              goBack(null);
-            } else {
-              if (_this22.state.name.length == 0) {
-                _reactNative.Alert.alert("Add a name before creating your group.");
-              }
-              if (_this22.state.des.length == 0) {
-                _reactNative.Alert.alert("Add a description before creating your group.");
-              }
-            }
+            _this22.createGroup();
           },
           title: 'Create',
           color: '#f7961d'
@@ -4227,9 +4241,22 @@ var GroupView = function (_React$Component9) {
                   return _react2.default.createElement(
                     _reactNative.View,
                     null,
+                    item.likes > 4 && _react2.default.createElement(
+                      _reactNative.View,
+                      { style: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' } },
+                      _react2.default.createElement(
+                        _reactNative.Text,
+                        { style: {
+                            fontSize: 15,
+                            color: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)]
+                          } },
+                        'Trending'
+                      ),
+                      _react2.default.createElement(_reactNative.Image, { style: { height: 15, width: 15, tintColor: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)] }, source: require('./CandidtwoImages/trending.png') })
+                    ),
                     _react2.default.createElement(
                       _reactNative.View,
-                      { style: { width: parseInt(_this39.state.postWidth), height: 35, backgroundColor: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)], borderTopLeftRadius: 7, borderTopRightRadius: 7, paddingTop: 5, paddingLeft: 5, flexDirection: 'row', justifyContent: 'space-between'
+                      { elevation: 2, style: { shadowOpacity: 0.5, shadowRadius: 2, width: parseInt(_this39.state.postWidth), height: 35, backgroundColor: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)], borderTopLeftRadius: 7, borderTopRightRadius: 7, paddingTop: 5, paddingLeft: 5, flexDirection: 'row', justifyContent: 'space-between'
                         } },
                       _react2.default.createElement(
                         _reactNative.View,
@@ -4243,7 +4270,7 @@ var GroupView = function (_React$Component9) {
                       ),
                       _react2.default.createElement(
                         _reactNative.Text,
-                        { style: { fontWeight: 'bold', fontSize: 18, color: '#ffffff' } },
+                        { style: { fontWeight: 'bold', fontSize: 17, color: '#ffffff' } },
                         _names.animalNames[Math.floor(item.content.length / 10 + item.nameID * 2)]
                       ),
                       _react2.default.createElement(_reactNative.View, { style: { width: 2, height: 1, backgroundColor: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)] } }),
@@ -4295,7 +4322,7 @@ var GroupView = function (_React$Component9) {
                     ),
                     _react2.default.createElement(
                       _reactNative.View,
-                      { style: { height: 15, width: _this39.state.postWidth, paddingRight: 5, backgroundColor: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)], flexDirection: 'row' } },
+                      { elevation: 2, style: { height: 15, width: _this39.state.postWidth, paddingRight: 5, backgroundColor: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)], flexDirection: 'row' } },
                       _react2.default.createElement(_reactNative.View, { style: { width: 6, height: 1 } }),
                       _react2.default.createElement(
                         _reactNative.Text,
@@ -4313,7 +4340,7 @@ var GroupView = function (_React$Component9) {
                         } },
                       _react2.default.createElement(
                         _reactNative.View,
-                        { style: { width: parseInt(_this39.state.postWidth), height: _this39.state.postWidth, backgroundColor: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)], alignItems: 'center', justifyContent: 'center', paddingLeft: 12, paddingRight: 12, paddingTop: 35, paddingBottom: 60 } },
+                        { elevation: 2, style: { width: parseInt(_this39.state.postWidth), height: _this39.state.postWidth, backgroundColor: _names.brightColor[Math.floor(item.content.length / 10 + item.nameID * 2)], alignItems: 'center', justifyContent: 'center', paddingLeft: 12, paddingRight: 12, paddingTop: 35, paddingBottom: 60 } },
                         _react2.default.createElement(
                           _reactNative.Text,
                           { style: { fontFamily: 'JosefinSans-Regular.ttf', fontSize: 22, color: '#ffffff', textAlign: 'center' }, numberOfLines: 7 },
@@ -4328,7 +4355,7 @@ var GroupView = function (_React$Component9) {
                     ),
                     _react2.default.createElement(
                       _reactNative.View,
-                      { style: { width: parseInt(_this39.state.postWidth), height: 40, backgroundColor: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)], flexDirection: 'row', paddingLeft: 5, justifyContent: 'space-between' } },
+                      { elevation: 2, style: { width: parseInt(_this39.state.postWidth), height: 40, backgroundColor: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)], flexDirection: 'row', paddingLeft: 5, justifyContent: 'space-between' } },
                       _react2.default.createElement(
                         _reactNative.TouchableHighlight,
                         { onPress: function onPress() {
@@ -4395,8 +4422,8 @@ var GroupView = function (_React$Component9) {
                     ),
                     _react2.default.createElement(
                       _reactNative.View,
-                      { style: { width: parseInt(_this39.state.postWidth), height: _this39.state.postWidth, borderBottomLeftRadius: 7, borderBottomRightRadius: 7, backgroundColor: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)], paddingLeft: 10, paddingRight: 10 } },
-                      _react2.default.createElement(_reactNative.View, { style: { width: 1, height: 4, backgroundColor: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)] } }),
+                      { elevation: 2, style: { width: parseInt(_this39.state.postWidth), height: _this39.state.postWidth, borderBottomLeftRadius: 7, borderBottomRightRadius: 7, backgroundColor: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)], paddingLeft: 10, paddingRight: 10 } },
+                      _react2.default.createElement(_reactNative.View, { elevation: 2, style: { width: 1, height: 4, backgroundColor: _names.darkColor[Math.floor(item.content.length / 10 + item.nameID * 2)] } }),
                       item.commentPreview.length != 1 && _react2.default.createElement(
                         _reactNative.TouchableWithoutFeedback,
                         { onPress: function onPress() {

@@ -2832,6 +2832,34 @@ var newGroup = function (_React$Component5) {
   }
 
   babelHelpers.createClass(newGroup, [{
+    key: 'createGroup',
+    value: function createGroup() {
+      _reactNative.Keyboard.dismiss();
+      var name = this.state.name;
+      if ('test.'.indexOf(".") !== -1) {
+        _reactNative.Alert.alert("error");
+      }
+      console.log(name.indexOf(".") !== -1, name, "======>");
+      var groupref = firebase.database().ref('groups').push();
+      if (this.state.name.length != 0 && this.state.des.length != 0) {
+        groupref.set({
+          name: this.state.name,
+          des: this.state.des,
+          users: 0,
+          posts: 0,
+          joined: 'no'
+        });
+        goBack(null);
+      } else {
+        if (this.state.name.length == 0) {
+          _reactNative.Alert.alert("Add a name before creating your group.");
+        }
+        if (this.state.des.length == 0) {
+          _reactNative.Alert.alert("Add a description before creating your group.");
+        }
+      }
+    }
+  }, {
     key: 'render',
     value: function render() {
       var _this22 = this;
@@ -2873,25 +2901,7 @@ var newGroup = function (_React$Component5) {
         _react2.default.createElement(_reactNative.Button, {
           style: { justifyContent: 'center' },
           onPress: function onPress() {
-            _reactNative.Keyboard.dismiss();
-            var groupref = firebase.database().ref('groups').push();
-            if (_this22.state.name.length != 0 && _this22.state.des.length != 0) {
-              groupref.set({
-                name: _this22.state.name,
-                des: _this22.state.des,
-                users: 0,
-                posts: 0,
-                joined: 'no'
-              });
-              goBack(null);
-            } else {
-              if (_this22.state.name.length == 0) {
-                _reactNative.Alert.alert("Add a name before creating your group.");
-              }
-              if (_this22.state.des.length == 0) {
-                _reactNative.Alert.alert("Add a description before creating your group.");
-              }
-            }
+            _this22.createGroup();
           },
           title: 'Create',
           color: '#f7961d'

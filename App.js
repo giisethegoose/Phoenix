@@ -2164,6 +2164,33 @@ constructor(props) {
       des: "",
    }
  }
+createGroup(){
+Keyboard.dismiss()
+const name = this.state.name
+var groupref = firebase.database().ref('groups').push();
+        if (this.state.name.length!=0 && this.state.des.length!=0 && name.indexOf(".") === -1) 
+	{
+        groupref.set({
+           name: this.state.name,
+       des: this.state.des,
+       users: 0,
+       posts: 0,
+       joined: 'no',
+        });
+return true
+    }
+    else {
+return false
+        if (this.state.name.length==0){
+          Alert.alert("Add a name before creating your group.")
+        }
+        if (this.state.des.length==0){
+          Alert.alert("Add a description before creating your group.")
+        }
+	Alert.alert("Make sure you don't include .s in your group names.");
+    }
+}
+
 render() {
  const {goBack} = this.props.navigation;
   return(
@@ -2196,26 +2223,9 @@ render() {
  <Button
       style={{justifyContent: 'center'}}
       onPress={() => {
-Keyboard.dismiss()
-var groupref = firebase.database().ref('groups').push();
-        if (this.state.name.length!=0 && this.state.des.length!=0) {
-        groupref.set({
-           name: this.state.name,
-       des: this.state.des,
-       users: 0,
-       posts: 0,
-       joined: 'no',
-        });
-        goBack(null);
-    }
-    else {
-        if (this.state.name.length==0){
-          Alert.alert("Add a name before creating your group.")
-        }
-        if (this.state.des.length==0){
-          Alert.alert("Add a description before creating your group.")
-        }
-    }
+         if(this.createGroup()){
+	    goBack(null);
+	 }
       }}               
       title="Create"
       color='#f7961d'
